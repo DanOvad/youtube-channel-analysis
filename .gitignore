@@ -1,0 +1,12 @@
+# Ignore the API keys
+config.py
+
+# Ignore CLIENT_SECRET_JSON
+client_secret_838897117500-648ihe6tug228rm5riop5k85oi48up18.apps.googleusercontent.com.json
+
+# Do not include checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+
+__pycache__/
