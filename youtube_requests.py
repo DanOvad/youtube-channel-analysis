@@ -155,7 +155,7 @@ def youtube_channel_details_by_network(channels_details_items_list, max_degree):
                                         neighbors_channels_id_set))
         
         network_channels_id_set = added_channels_id_set | network_channels_id_set
-        print(added_channels_id_set)
+        #print(added_channels_id_set)
         
         # Request channel details from Youtube using list of channel ids
         neighbors_channels_items_list = youtube_request_channel_list(list(added_channels_id_set))

@@ -1,19 +1,14 @@
-import requests
-import json
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 # api_key is stored in config.py
-import config
 import networkx as nx
 
-import collections
+import plotly.graph_objects as go
 
 
-def graph_channels(channel_response):
+def create_nx_graph(channel_response):
     
     # Dictionary comprehension to create channelId:featuredChannelUrls data structure
     channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] \
@@ -27,23 +22,28 @@ def graph_channels(channel_response):
     
     channel_ids = [channel['id'] for channel in channel_response]
     
+    
+    
     # Create a Directional Graph from the channel network
     g = nx.DiGraph(channel_network)
-    
-    
-    
+    h = g.subgraph(channel_ids)
+    nx.set_node_attributes(h, channel_names, name='title')
+    return h
+
+def graph_nx_graph(g):
+
     # Create positional values using networkx.drawing.layout functions
-    pos = nx.drawing.layout.spring_layout(g)
-    #POS = nx.drawing.layout.circular_layout(G)
+    #pos = nx.drawing.layout.spring_layout(g)
+    pos = nx.drawing.layout.kamada_kawai_layout(g)
+    nx.set_node_attributes(g, pos, name='pos')
     
     # Plot the graph
     plt.figure(figsize = (12,12))
     nx.draw_networkx(g,
                  with_labels=True,
                      pos=pos,
-                 labels=channel_names,
+                 labels={node:g.nodes()[node]['title'] for node in g.nodes},
                  font_size=12, font_color = 'red')
-    return g
 
 
 def simple_page_rank(g):
@@ -70,34 +70,42 @@ def extract_connected_components():
 
 def plotly_network_graph(g):
     '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"'''
+    
+    channel_names_list = [g.nodes[node]['title'] for node in g.nodes()]
     edge_x = []
     edge_y = []
-    for edge in H.edges():
-        x0, y0 = H.nodes[edge[0]]['pos']
-        x1, y1 = H.nodes[edge[1]]['pos']
+    for edge in g.edges():
+        x0, y0 = g.nodes[edge[0]]['pos']
+        x1, y1 = g.nodes[edge[1]]['pos']
         edge_x.append(x0)
         edge_x.append(x1)
         edge_x.append(None)
         edge_y.append(y0)
         edge_y.append(y1)
         edge_y.append(None)
-        
+    
+    
+    #
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         line=dict(width=0.5, color='#888'),
         hoverinfo='none',
         mode='lines')
     
+    
+    #
     node_x = []
     node_y = []
-    for node in H.nodes():
-        x, y = H.nodes[node]['pos']
+    for node in g.nodes():
+        x, y = g.nodes[node]['pos']
         node_x.append(x)
         node_y.append(y)
 
+    #
     node_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='markers',
+        text=channel_names_list,
         hoverinfo='text',
         marker=dict(
             showscale=True,
@@ -116,7 +124,16 @@ def plotly_network_graph(g):
                 titleside='right'
             ),
             line_width=2))
+    node_adjacencies = []
+    node_text = []
     
+    
+    for node, adjacencies in enumerate(g.adjacency()):
+        node_adjacencies.append(len(adjacencies[1]))
+        node_text.append(f'{channel_names_list[node]} has # of connections: {str(len(adjacencies[1]))}')
+        
+    node_trace.marker.color = node_adjacencies
+    node_trace.text = node_text
     
     fig = go.Figure(data=[edge_trace, node_trace],
                  layout=go.Layout(
