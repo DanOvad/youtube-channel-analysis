@@ -47,7 +47,11 @@ def create_nx_graph(channel_response, directed = True):
     else:
         h = g.subgraph(channel_ids).to_undirected()
     
-    
+    # Set node attributes to include position
+    #pos = nx.drawing.layout.spring_layout(g)
+    #pos = nx.nx.drawing.layout.fruchterman_reingold_layout(g)
+    pos = nx.drawing.layout.kamada_kawai_layout(g)
+    nx.set_node_attributes(g, pos, name='pos')
     
     # Set attribute for names
     nx.set_node_attributes(h, channel_names, name='title')
@@ -57,23 +61,18 @@ def create_nx_graph(channel_response, directed = True):
     return h
 
 def graph_nx_graph(g):
-
-    # Create positional values using networkx.drawing.layout functions
-    pos = nx.drawing.layout.spring_layout(g)
-    #pos = nx.nx.drawing.layout.fruchterman_reingold_layout(g)
-    #pos = nx.drawing.layout.kamada_kawai_layout(g)
     
-    # Set node attributes to include position
-    nx.set_node_attributes(g, pos, name='pos')
-    
+    #pos = nx.drawing.layout.spring_layout(g)
     # Plot the graph
-    plt.figure(figsize = (12,12))
+    fig = plt.figure()
+    #fig = plt.figure(figsize = (12,12))
     nx.draw_networkx(g,
         with_labels=True,
-        pos=pos,
+        pos={node:g.nodes()[node]['pos'] for node in g.nodes()},
         labels={node:g.nodes()[node]['title'] for node in g.nodes},
         font_size=12, font_color = 'red')
-
+    plt.close()
+    return fig
 
 def simple_page_rank(g):
     a = nx.adjacency_matrix(g)
@@ -139,7 +138,7 @@ def plotly_network_graph(g):
 
     #
     
-    node_size_list = [np.log(subcount + 1) for subcount in subscriber_count_list]
+    node_size_list = [np.log2(subcount + 1) for subcount in subscriber_count_list]
     node_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='markers',
@@ -188,4 +187,5 @@ def plotly_network_graph(g):
                     xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                     yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
                     )
-    fig.show()
+    return fig
+    #fig.show()
