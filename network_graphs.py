@@ -8,42 +8,57 @@ import networkx as nx
 import plotly.graph_objects as go
 
 
-def create_nx_graph(channel_response):
+def create_nx_graph(channel_response, directed = True):
+    '''Takes in a list of channel details response items and returns a graph object in networkX.
     
-    # Dictionary comprehension to create channelId:featuredChannelUrls data structure
-    channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] \
-                       if 'featuredChannelsUrls' in channel['brandingSettings']['channel'] else [] \
-                       for channel in channel_response}
+    Specifically subsets only those channels queried.'''
+    
+    # Create dictionary to instantiate graph
+    channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] if 'featuredChannelsUrls' in channel['brandingSettings']['channel'] else [] for channel in channel_response}
 
-    # Dict Comp to create channelId:Channelname data structure
-    channel_names = {channel['id']:channel['snippet']['title'] \
-                       if 'title' in channel['snippet'] else [] \
-                       for channel in channel_response}
+    # Create dictionary to attribute nodes with names
+    channel_names = {channel['id']:channel['snippet']['title'] if 'title' in channel['snippet'] else [] for channel in channel_response}
     
-    channel_ids = [channel['id'] for channel in channel_response]
-    
+    # Create dictionary to attribute nodes with subcount
+    subscriber_count_dict = {channel['id']:int(channel['statistics']['subscriberCount']) \
+                             for channel in channel_response}
     
     
     # Create a Directional Graph from the channel network
     g = nx.DiGraph(channel_network)
-    h = g.subgraph(channel_ids)
+
+    # Create a list of channelIds to subset the graph
+    channel_ids = [channel['id'] for channel in channel_response]
+    
+    # Subset our created graph to only include channels we have details on
+    if directed == True:
+        h = g.subgraph(channel_ids)#.to_undirected()    
+    else:
+        h = g.subgraph(channel_ids).to_undirected()
+
+    # Set node attributes based on response
     nx.set_node_attributes(h, channel_names, name='title')
+    nx.set_node_attributes(h, subscriber_count_dict, name='subscriberCount')
+    
     return h
 
 def graph_nx_graph(g):
 
     # Create positional values using networkx.drawing.layout functions
-    #pos = nx.drawing.layout.spring_layout(g)
-    pos = nx.drawing.layout.kamada_kawai_layout(g)
+    pos = nx.drawing.layout.spring_layout(g)
+    #pos = nx.nx.drawing.layout.fruchterman_reingold_layout(g)
+    #pos = nx.drawing.layout.kamada_kawai_layout(g)
+    
+    # Set node attributes to include position
     nx.set_node_attributes(g, pos, name='pos')
     
     # Plot the graph
     plt.figure(figsize = (12,12))
     nx.draw_networkx(g,
-                 with_labels=True,
-                     pos=pos,
-                 labels={node:g.nodes()[node]['title'] for node in g.nodes},
-                 font_size=12, font_color = 'red')
+        with_labels=True,
+        pos=pos,
+        labels={node:g.nodes()[node]['title'] for node in g.nodes},
+        font_size=12, font_color = 'red')
 
 
 def simple_page_rank(g):
@@ -53,7 +68,7 @@ def simple_page_rank(g):
     for i in range(20):
         v1 = a @ v0
         v1 /= v1.sum(0)
-        print(np.linalg.norm(v1 - v0))
+        #print(np.linalg.norm(v1 - v0))
         v0 = v1
     return v1
 
@@ -70,10 +85,17 @@ def extract_connected_components():
 
 def plotly_network_graph(g):
     '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"'''
-    
+    # Extract a list of channel names from node attributes
     channel_names_list = [g.nodes[node]['title'] for node in g.nodes()]
+    
+    # Extract list of subscriber counts from node attributes
+    subscriber_count_list = [g.nodes[node]['subscriberCount'] for node in g.nodes()]
+    
+    # Instantiate Edges
     edge_x = []
     edge_y = []
+    
+    # Cycle through graph edges to generate positions
     for edge in g.edges():
         x0, y0 = g.nodes[edge[0]]['pos']
         x1, y1 = g.nodes[edge[1]]['pos']
@@ -85,7 +107,7 @@ def plotly_network_graph(g):
         edge_y.append(None)
     
     
-    #
+    # Create first trace for edges in our scatter plot
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         line=dict(width=0.5, color='#888'),
@@ -93,7 +115,7 @@ def plotly_network_graph(g):
         mode='lines')
     
     
-    #
+    # Instantiate Nodes
     node_x = []
     node_y = []
     for node in g.nodes():
@@ -102,6 +124,8 @@ def plotly_network_graph(g):
         node_y.append(y)
 
     #
+    
+    node_size_list = [np.log(subcount + 1) for subcount in subscriber_count_list]
     node_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='markers',
@@ -116,7 +140,7 @@ def plotly_network_graph(g):
             colorscale='YlGnBu',
             reversescale=True,
             color=[],
-            size=10,
+            size=node_size_list,
             colorbar=dict(
                 thickness=15,
                 title='Node Connections',
@@ -130,7 +154,7 @@ def plotly_network_graph(g):
     
     for node, adjacencies in enumerate(g.adjacency()):
         node_adjacencies.append(len(adjacencies[1]))
-        node_text.append(f'{channel_names_list[node]} has # of connections: {str(len(adjacencies[1]))}')
+        node_text.append(f'{channel_names_list[node]} has {str(len(adjacencies[1]))} connections and {subscriber_count_list[node]} subscribers')
         
     node_trace.marker.color = node_adjacencies
     node_trace.text = node_text
