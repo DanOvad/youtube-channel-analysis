@@ -14,12 +14,16 @@ def create_nx_graph(channel_response, directed = True):
     Specifically subsets only those channels queried.'''
     
     # Create dictionary to instantiate graph
-    channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] if 'featuredChannelsUrls' in channel['brandingSettings']['channel'] else [] for channel in channel_response}
+    channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] \
+                       if 'featuredChannelsUrls' in channel['brandingSettings']['channel'] else [] \
+                       for channel in channel_response}
 
-    # Create dictionary to attribute nodes with names
-    channel_names = {channel['id']:channel['snippet']['title'] if 'title' in channel['snippet'] else [] for channel in channel_response}
+    # Create dictionary to attribute names
+    channel_names = {channel['id']:channel['snippet']['title'] \
+                     if 'title' in channel['snippet'] else [] \
+                     for channel in channel_response}
     
-    # Create dictionary to attribute nodes with subcount
+    # Create dictionary to attribute subscribeCount
     subscriber_count_dict = {channel['id']:int(channel['statistics']['subscriberCount']) \
                              for channel in channel_response}
     
@@ -30,19 +34,24 @@ def create_nx_graph(channel_response, directed = True):
     # Create a list of channelIds to subset the graph
     channel_ids = [channel['id'] for channel in channel_response]
     
-    # Subset our created graph to only include channels we have details on
+    # Subset created graph to only include channels we have details on
     if directed == True:
         h = g.subgraph(channel_ids)#.to_undirected()
         # In-degree Centrality only matters for Directed graphs
         in_degree_dict = {node:h.in_degree()[node] for node in h.nodes()}
-        nx.set_node_attributes(h,in_degree_dict)
+        
+        # Set attribute for in_degree
+        nx.set_node_attributes(h,
+                               values=in_degree_dict,
+                               name='in_degree')
     else:
         h = g.subgraph(channel_ids).to_undirected()
     
     
     
-    # Set node attributes based on response
+    # Set attribute for names
     nx.set_node_attributes(h, channel_names, name='title')
+    # Set attribute for SubscribeCount
     nx.set_node_attributes(h, subscriber_count_dict, name='subscriberCount')
     
     return h
