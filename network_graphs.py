@@ -32,10 +32,15 @@ def create_nx_graph(channel_response, directed = True):
     
     # Subset our created graph to only include channels we have details on
     if directed == True:
-        h = g.subgraph(channel_ids)#.to_undirected()    
+        h = g.subgraph(channel_ids)#.to_undirected()
+        # In-degree Centrality only matters for Directed graphs
+        in_degree_dict = {node:h.in_degree()[node] for node in h.nodes()}
+        nx.set_node_attributes(h,in_degree_dict)
     else:
         h = g.subgraph(channel_ids).to_undirected()
-
+    
+    
+    
     # Set node attributes based on response
     nx.set_node_attributes(h, channel_names, name='title')
     nx.set_node_attributes(h, subscriber_count_dict, name='subscriberCount')
