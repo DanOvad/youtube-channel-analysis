@@ -97,7 +97,31 @@ def youtube_request_channel_list(channelid_list):
 ### Pulling channel details by search
 def youtube_channel_details_by_search(query, n):
     '''Returns a details list of channels for a specific search query and number of requested results.'''
-    # Request n number of channels from a youtube search query
+    # Load cached dictionary with {key:value} is {query string:response_items}
+    with open('data/query_cache.json','r') as query_cache:
+        query_cache_dict = json.load(query_cache)
+        
+    if query in query_cache_dict:
+        channel_details_items_list = query_cache_dict[query]
+        print("Already seen this query")
+    else:
+        print("Haven't seen this query yet")
+        # API REQUEST (quota cost 100)
+        channels_list = youtube_request_search_channels(query,n)
+
+        # Retrieve Channel Ids from the list of dictionaries
+        channels_id_list = [channel['snippet']['channelId'] for channel in channels_list]
+
+        # API REQUEST (quota cost 1) Request details for all channels in a list of channelIds
+        channels_details_items_list = youtube_request_channel_list(channels_id_list)
+
+        # Extract channel details to a list of dictionaries for pandas
+        #channels_details_list = extract_channel_details(channels_detail_items_list)
+        
+        query_cache_dict[query] = channels_details_items_list
+        with open('data/query_cache.json','w') as query_json:
+            json.dump(query_cache_dict, query_json)
+    
     channels_list = youtube_request_search_channels(query,n)
 
     # Retrieve Channel Ids from the list of dictionaries
