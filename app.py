@@ -46,7 +46,7 @@ G = network_graphs.create_nx_graph(SEARCH_DETAILS_ITEMS_LIST, True)
 #DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
 
 # Graph G
-fig = network_graphs.plotly_network_graph(G)
+FIG = network_graphs.plotly_network_graph(G)
 #fig2 = network_graphs.graph_nx_graph(G)
 
 
@@ -54,8 +54,11 @@ CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(SEARCH_DETAILS_I
 
 DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
 
-FEATURES = ['title','subscriberCount','viewCount','featuredChannelsCount']
+FEATURES = ['id','title','subscriberCount','viewCount','featuredChannelsCount']
 DF = DF[FEATURES]
+CHANNEL_ID_LIST = []
+
+
 
 app.layout = html.Div(children=[
     html.H1(children='Corridor Digital Channel Network'),
@@ -79,8 +82,8 @@ app.layout = html.Div(children=[
                         children='Enter a value and press submit')
                 ]
             ),
-            html.Div(className='six columns',children=
-                    [
+            html.Div(className='six columns',
+                    children=[
                         dash_table.DataTable(id='datatable-interactive',
                             columns=[{"name": i, "id": i, "selectable":True} for i in DF[FEATURES].columns],
                             data=DF.to_dict('records'),
@@ -96,13 +99,15 @@ app.layout = html.Div(children=[
             )
             
         ]),
+    html.Div(id='channels_selected',className='row',children=''),
+    html.Button('Network', id='submit_list',n_clicks=0),
 
     #html.Div(id='datatable-interactivity-container', children='string for container'),
     
-    html.Div(children=[
+    html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
-            figure=fig,
+            figure=FIG,
             className ='six columns',
             responsive=True
         )
@@ -143,21 +148,44 @@ def update_output_table(n_clicks, value):
     print("Ran Update")
     
     # For a search query and number of results, get back a list of dictionaries of channel details
-    CHANNELS_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search(value,10)
-    #with open('data/corridor_five.json','r') as json_file:
-    #    CHANNELS_DETAILS_ITEMS_LIST = json.load(json_file)
-               
+    channels_details_items_list = youtube_requests.youtube_channel_details_by_search(value,10)
+      
     # Flatten the data and place into DataFrame
-    CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(CHANNELS_DETAILS_ITEMS_LIST)
-    DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
+    channels_details_list = data_processing.extract_channel_details(channels_details_items_list)
+    DF = data_processing.create_df_from_details_list(channels_details_list)
     
     # Subset the data, if we don't datatypes cause problems in dash_table.DataTable
-    FEATURES = ['title','subscriberCount','viewCount','featuredChannelsCount']
+    #features = ['id','title','subscriberCount','viewCount','featuredChannelsCount']
     DF = DF[FEATURES]
     
     return DF.to_dict('records')
 
+@app.callback(
+    dash.dependencies.Output('channels_selected','children'),
+    [dash.dependencies.Input('datatable-interactive','selected_row_ids')])
+def selected_rows(selected_row_ids):
+    if selected_row_ids is None:
+        print("No row Selected")
+        return None
+    else:
+        print("Selected a row")
+        return selected_row_ids
 
+
+@app.callback(
+    dash.dependencies.Output('plotly','figure'),
+[dash.dependencies.Input('submit_list','n_clicks')],
+[dash.dependencies.State('channels_selected','children')])
+
+def update_network(n_clicks,children):
+    if len(children) == 0:
+        return FIG
+    else:
+        print(f'Running with {len(children)} channels')
+        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(children,4)
+        g = network_graphs.create_nx_graph(channels_details_items_list)    
+
+    return network_graphs.plotly_network_graph(g)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

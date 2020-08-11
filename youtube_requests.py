@@ -153,12 +153,13 @@ def extract_featured_channels(channels_details_items_list):
 
 
 
-def youtube_channel_details_by_network(channels_details_items_list, max_degree):
+def youtube_channel_details_by_network(channelid_list, max_degree):
     
+    # Request detail_items for list of channelIds
+    channels_details_items_list = youtube_request_channel_list(channelid_list)
+    
+    # Instantiate unique set of channelIds
     network_channels_id_set = set([channel['id'] for channel in channels_details_items_list])
-    
-    # get a response for the list of channel Ids
-    #channel_resp = youtube_request_channel_list(channelid_list)
     
     # Instantiate the output, a list of dictionaries, each dict represents a channel
     network_channels_items_list = []
