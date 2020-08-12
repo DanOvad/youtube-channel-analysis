@@ -17,33 +17,16 @@ import youtube_requests
 import data_processing
 import network_graphs
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-#with open('data/corridor_five.json','r') as json_file:
-#    CORRIDOR_FULL = json.load(json_file)
-    
-#with open('data/corridor_network.json','r') as json_file:
-#    CHANNELS_DETAILS_ITEMS_LIST = json.load(json_file)
-   
-with open('data/corridor_search.json','r') as json_file:
-    SEARCH_DETAILS_ITEMS_LIST = json.load(json_file)
+#with open('data/corridor_search.json','r') as json_file:
+#    SEARCH_DETAILS_ITEMS_LIST = json.load(json_file)
 
-    
-#CHANNELS_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search('corridor crew',10)
-    
-# Get a list of dictionaries, where each dictionary represents details for a specific channel
-#CHANNELS_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_network(CORRIDOR_FULL, 1)
+# Search for the default value which will be "Corridor Crew"
+SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search("corridor crew", 10)
 
 # Graph the network of channels
 G = network_graphs.create_nx_graph(SEARCH_DETAILS_ITEMS_LIST, True)
-
-# Extract a columnar list of channel details
-#CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(CHANNELS_DETAILS_ITEMS_LIST)
-
-# Create a dataframe
-#DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
 
 # Graph G
 FIG = network_graphs.plotly_network_graph(G)
@@ -51,7 +34,6 @@ FIG = network_graphs.plotly_network_graph(G)
 
 
 CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(SEARCH_DETAILS_ITEMS_LIST)
-
 DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
 
 FEATURES = ['id','title','subscriberCount','viewCount','featuredChannelsCount']
@@ -59,56 +41,137 @@ DF = DF[FEATURES]
 CHANNEL_ID_LIST = []
 
 
+# Define External Stylesheet
 
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css','https://use.fontawesome.com/releases/v5.8.1/css/all.css']
+#{
+#    'href': 'https://use.fontawesome.com/releases/v5.8.1/css/all.css',
+#    'rel': 'stylesheet',
+#    'integrity': 'sha384-#50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf',
+#    'crossorigin': 'anonymous'
+#}#'href':'https://use.fontawesome.com/releases/v5.8.1/css/all.css', 
+    #'rel':'icon'
+#]
+#https://use.fontawesome.com/releases/v5.8.1/css/all.css
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/dZVMbK.css']#['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+# Instantiate Dash app as "app"
+app = dash.Dash(__name__, 
+                external_stylesheets=external_stylesheets, 
+                meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+    ])
+
+# Define app layout
 app.layout = html.Div(children=[
-    html.H1(children='Corridor Digital Channel Network'),
-
-    html.Div(children='''
-        A directed graph of featured youtube channels
-    '''),
+    html.Div(id='header_section',style={'backgroundColor':'#EFDDEF',
+                                        "border":"1px black solid"},
+        children=
+            [
+                html.H1(style ={"margin":dict(b=20,l=40,r=10,t=40)},
+                    children=[
+                        html.I(className="fab fa-youtube",
+                                    style={'size':'14px','color':'#FF0000'}),
+                        ' YouTube Network through Featured Channels'
+                    ],
+                ),
+                html.H5(
+                    children='''
+                    A tool to graph how YouTube channels are connected through featured channels
+                    ''')#, style={"border":"2px black solid"})
+             ]
+    ),
     
-    html.Div(className='row',children=
-        [
-            html.Div(className='six columns',children=
-                [
-                    dcc.Input(
-                        id="channel_search_input",
-                        type="text",
-                        value="corridor",
-                        placeholder="Search for relevant youtube channels"),
-                    html.Div(id='search_output'),
-                    html.Button('Search', id='submit-val',n_clicks=0),
-                    html.Div(id='container-button-basic',
-                        children='Enter a value and press submit')
+
+    
+    # FIRST SECTION
+    html.Div(id='search-channel-section',className='row',
+        children=[
+            html.Div(id='search-section-input', 
+                    className='six columns',
+                children=[
+                    html.H5('Part 1 - Search Channels'),
+                    html.P(children='Type in a search query and hit search to see a list of channels.'),
+                    html.Div(id = 'box-one',
+                            #className='six columns',
+                            style = {"border":"1px black solid"},
+                        children=
+                    # Add a div tag for Part 1 - Search
+                    [
+                        dcc.Input(
+                            id="channel_search_input",
+                            type="text",
+                            value="corridor crew",
+                            placeholder="Search for relevant youtube channels"),
+                        html.Div(id='search_output'),
+                        html.Button('Search', id='submit-val',n_clicks=0),
+                        html.Div(id='container-button-basic',
+                            children='Enter a value and press submit')
+                    ]
+                         
+                    )
                 ]
             ),
-            html.Div(className='six columns',
-                    children=[
-                        dash_table.DataTable(id='datatable-interactive',
-                            columns=[{"name": i, "id": i, "selectable":True} for i in DF[FEATURES].columns],
-                            data=DF.to_dict('records'),
-                            filter_action='native',
-                            #sort_action="multi",
-                            sort_mode="single",
-                            row_selectable='multi',
-                            page_action='native',
-                            page_current=0,
-                            page_size=10
-                        )
-                    ]
-            )
             
-        ]),
+            html.Div(id='select-channel-section',
+                     className='six columns',
+                children=[
+                    html.H5(children='Part Two - Select Channels'),
+                    html.P(children='Select which channels you want to graph"'),
+                    html.Div(id = 'box-two', 
+                        children = [
+                            html.Div(style = {"border":"1px black solid"},
+                                children=[
+                                    dash_table.DataTable(id='datatable-interactive',
+                                        columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
+                                        # Hide the id column, but need it to generate selected list
+                                        hidden_columns=['id'],
+
+                                        # Call Back replaces this field 
+                                        data=DF.to_dict('records'),
+
+                                        filter_action='native',
+                                        #sort_action="multi",
+                                        sort_mode="single",
+                                        row_selectable='multi',
+                                        page_action='native',
+                                        page_current=0,
+                                        page_size=10,
+                                        style_cell_conditional=[
+                                            {'if': {'column_id': c},
+                                                'textAlign': 'left'
+                                            } for c in ['title']
+                                        ],
+                                        style_as_list_view=True
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+
+                ]
+            )
+             
+                
+        ]
+    ),
+    
+    
+    # Add a div tag for Part 2 - Network
+    # Add a div tags for two parts of Part 2 - interact, then show results
+    # display-channels-selected comes first
     html.Div(id='channels_selected',className='row',children=''),
-    html.Button('Network', id='submit_list',n_clicks=0),
+    html.Button('Network', id='network-button',n_clicks=0),
 
     #html.Div(id='datatable-interactivity-container', children='string for container'),
-    
+    # html.Div(id='results-section',children="Results Section")
     html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
+            style={'width': '90%','textAlign': 'center'},
+            #style={'height': '100vh','width':'100vh'},
             figure=FIG,
-            className ='six columns',
+            #className ='six columns',
             responsive=True
         )
     ])
@@ -143,9 +206,9 @@ def update_output(n_clicks, value):
     dash.dependencies.Output('datatable-interactive', 'data'),
     [dash.dependencies.Input('submit-val', 'n_clicks')],
     [dash.dependencies.State('channel_search_input', 'value')])
-def update_output_table(n_clicks, value):
+def display_search_table(n_clicks, value):
     
-    print("Ran Update")
+    print("Ran Update Search datatable")
     
     # For a search query and number of results, get back a list of dictionaries of channel details
     channels_details_items_list = youtube_requests.youtube_channel_details_by_search(value,10)
@@ -163,7 +226,7 @@ def update_output_table(n_clicks, value):
 @app.callback(
     dash.dependencies.Output('channels_selected','children'),
     [dash.dependencies.Input('datatable-interactive','selected_row_ids')])
-def selected_rows(selected_row_ids):
+def display_selected_rows(selected_row_ids):
     if selected_row_ids is None:
         print("No row Selected")
         return None
@@ -171,18 +234,19 @@ def selected_rows(selected_row_ids):
         print("Selected a row")
         return selected_row_ids
 
-
 @app.callback(
     dash.dependencies.Output('plotly','figure'),
-[dash.dependencies.Input('submit_list','n_clicks')],
+[dash.dependencies.Input('network-button','n_clicks')],
 [dash.dependencies.State('channels_selected','children')])
 
 def update_network(n_clicks,children):
+    print(children)
+    print("Ran Update Network graph")
     if len(children) == 0:
         return FIG
     else:
         print(f'Running with {len(children)} channels')
-        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(children,4)
+        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(children,3)
         g = network_graphs.create_nx_graph(channels_details_items_list)    
 
     return network_graphs.plotly_network_graph(g)

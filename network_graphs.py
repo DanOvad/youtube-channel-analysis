@@ -174,8 +174,12 @@ def plotly_network_graph(g):
     
     fig = go.Figure(data=[edge_trace, node_trace],
                  layout=go.Layout(
-                    title='<br>Network graph made with Python',
+                    scene=dict(aspectmode="data"),
+                    autosize=True,
+                    title='Graph of Featured Channels',
                     titlefont_size=16,
+                    #width=700,
+                    height=700,
                     showlegend=False,
                     hovermode='closest',
                     margin=dict(b=20,l=5,r=5,t=40),
@@ -188,4 +192,3 @@ def plotly_network_graph(g):
                     yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
                     )
     return fig
-    #fig.show()

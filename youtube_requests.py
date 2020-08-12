@@ -50,6 +50,8 @@ def youtube_request_search_channels(query, n):
                         q=query,
                         key=config.api_key)
         )
+        if not resp.ok:
+            print(json.loads(resp.content))
         assert resp.ok
         nextPageToken = json.loads(resp.content)['nextPageToken']
         channel_list.extend(json.loads(resp.content)['items'])
@@ -86,6 +88,9 @@ def youtube_request_channel_list(channelid_list):
                     maxResults=50,
                     key=config.api_key)
         )
+        if not resp.ok:
+            print(json.loads(resp.content))
+        assert resp.ok
         # Increase the start_index
         start_index += request_size
         
@@ -102,7 +107,7 @@ def youtube_channel_details_by_search(query, n):
         query_cache_dict = json.load(query_cache)
         
     if query in query_cache_dict:
-        channel_details_items_list = query_cache_dict[query]
+        channels_details_items_list = query_cache_dict[query]
         print("Already seen this query")
     else:
         print("Haven't seen this query yet")
@@ -112,26 +117,12 @@ def youtube_channel_details_by_search(query, n):
         # Retrieve Channel Ids from the list of dictionaries
         channels_id_list = [channel['snippet']['channelId'] for channel in channels_list]
 
-        # API REQUEST (quota cost 1) Request details for all channels in a list of channelIds
+        # API REQUEST (quota cost 1) Request channel details for list of channelIds
         channels_details_items_list = youtube_request_channel_list(channels_id_list)
 
-        # Extract channel details to a list of dictionaries for pandas
-        #channels_details_list = extract_channel_details(channels_detail_items_list)
-        
         query_cache_dict[query] = channels_details_items_list
         with open('data/query_cache.json','w') as query_json:
             json.dump(query_cache_dict, query_json)
-    
-    channels_list = youtube_request_search_channels(query,n)
-
-    # Retrieve Channel Ids from the list of dictionaries
-    channels_id_list = [channel['snippet']['channelId'] for channel in channels_list]
-
-    # Request details for all channels in a list of channelIds
-    channels_details_items_list = youtube_request_channel_list(channels_id_list)
-
-    # Extract channel details to a list of dictionaries for pandas
-    #channels_details_list = extract_channel_details(channels_detail_items_list)
     
     return channels_details_items_list
 
@@ -155,40 +146,57 @@ def extract_featured_channels(channels_details_items_list):
 
 def youtube_channel_details_by_network(channelid_list, max_degree):
     
-    # Request detail_items for list of channelIds
-    channels_details_items_list = youtube_request_channel_list(channelid_list)
+    # Caching using sorted strings
+    channelid_list = list(set(channelid_list))
+    channelid_list.sort()
     
-    # Instantiate unique set of channelIds
-    network_channels_id_set = set([channel['id'] for channel in channels_details_items_list])
-    
-    # Instantiate the output, a list of dictionaries, each dict represents a channel
-    network_channels_items_list = []
-    
-    # Add our origin channel responses
-    network_channels_items_list.extend(channels_details_items_list)
-    
-    # Instantiate a neighbors channel response
-    neighbors_channels_items_list = channels_details_items_list
-    
-    # Loop over each degree of separate (breadth first search)
-    for degree in range(1,max_degree+1):
+    with open('data/network_cache.json','r') as cache_file:
+        channel_network_cache = json.load(cache_file)
         
-        # Extract a list of featured channels ids
-        neighbors_channels_id_set = set(extract_featured_channels(neighbors_channels_items_list))
-        added_channels_id_set = neighbors_channels_id_set.difference(
-                                    network_channels_id_set.intersection(
-                                        neighbors_channels_id_set))
-        
-        network_channels_id_set = added_channels_id_set | network_channels_id_set
-        #print(added_channels_id_set)
-        
-        # Request channel details from Youtube using list of channel ids
-        neighbors_channels_items_list = youtube_request_channel_list(list(added_channels_id_set))
-        
-        # Add n-degree channel details response
-        network_channels_items_list.extend(neighbors_channels_items_list)
-        
-        
-        
+    if ''.join(channelid_list) in channel_network_cache:
+        print("Have see this list before, request from cache")
+        network_channels_items_list = channel_network_cache[''.join(channelid_list)]
+        return network_channels_items_list
+    else:
+        # Request detail_items for list of channelIds
+        print("Havent seen this list, request and cache")
+        channels_details_items_list = youtube_request_channel_list(channelid_list)
+        #channel_network_cache[''.join(channelid_list)] = channel_details_items_list
+
+        # Instantiate unique set of channelIds
+        network_channels_id_set = set(channelid_list)
+        #network_channels_id_set = set([channel['id'] for channel in channels_details_items_list])
+
+        # Instantiate the output, a list of dictionaries, each dict represents a channel
+        network_channels_items_list = []
+
+        # Add our origin channel responses
+        network_channels_items_list.extend(channels_details_items_list)
+
+        # Instantiate a neighbors channel response | start with current list
+        neighbors_channels_items_list = channels_details_items_list
+
+        # Loop over each degree of separate (breadth first search)
+        for degree in range(1,max_degree+1):
+
+            # Extract a list of featured channels ids
+            neighbors_channels_id_set = set(extract_featured_channels(neighbors_channels_items_list))
+            added_channels_id_set = neighbors_channels_id_set.difference(
+                                        network_channels_id_set.intersection(
+                                            neighbors_channels_id_set))
+
+            network_channels_id_set = added_channels_id_set | network_channels_id_set
+            #print(added_channels_id_set)
+
+            # Request channel details from Youtube using list of channel ids
+            neighbors_channels_items_list = youtube_request_channel_list(list(added_channels_id_set))
+
+            # Add n-degree channel details response
+            network_channels_items_list.extend(neighbors_channels_items_list)
+
+        # Append network_channels_items_list to cache
+        channel_network_cache[''.join(channelid_list)] = network_channels_items_list
+        with open('data/network_cache.json','w') as json_file:
+            json.dump(channel_network_cache, json_file)
         
     return network_channels_items_list
