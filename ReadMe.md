@@ -2,7 +2,15 @@
 
 ## Purpose
 
-The purpose of this project is to plot a graph of YouTube channels based crawling across channels via featured channels. This will be a directional graph, for instance `channel A` might point to `channel B,` but `channel B` might not point to `channel A.`
+The purpose of this project is to create a tool that can plot graphs of YouTube channels by crawling through other channels featured on their profile page. This graph can then be used to analyze each channels relative significance in that network. 
+
+In this approach we start off with a list of channels as our point of origin, extract the list of channels featured on each channelId
+
+This will be a directional graph, for instance `channel A` might point to `channel B,` but `channel B` might not point to `channel A.`
+
+**Note:** Due to the crawling nature of this project, the analysis is relative to the subset of channels in the YouTube universe, therefore the statistics will change for different sized networks containing a different point of origin.
+
+
 
 Each channel has an option to feature other youtube channels on their profile page. This appears on their profile page as a tab. As in this example for Google's YouTube channel.
 ![image](images/sample-YT-featured-channels.png)
@@ -10,8 +18,9 @@ Each channel has an option to feature other youtube channels on their profile pa
 Many channels do not feature channels on their profile pages. Such as with Google's Webmasters YouTube channel
 ![image](images/sample-YT-no-channels.png)
 
-Some exclusively feature channels within their network.
-For example BC.
+Some channels exclusively feature channels within their network.
+For example BBC.
+![image](images/sample-YT-BBC.png)
 
 ## Summary
 
