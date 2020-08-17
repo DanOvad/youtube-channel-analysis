@@ -4,19 +4,18 @@
 
 The purpose of this project is to plot a graph of YouTube channels based crawling across channels via featured channels. This will be a directional graph, for instance `channel A` might point to `channel B,` but `channel B` might not point to `channel A.`
 
+Each channel has an option to feature other youtube channels on their profile page. This appears on their profile page as a tab. As in this example for Google's YouTube channel.
 ![image](images/sample-YT-featured-channels.png)
 
-Many channels do not feature channels on their channels.
-
-Example of a channel without featured channels. 
+Many channels do not feature channels on their profile pages. Such as with Google's Webmasters YouTube channel
+![image](images/sample-YT-no-channels.png)
 
 Some exclusively feature channels within their network.
+For example BC.
 
-For example NBC.
+## Summary
 
-# Summary
-
-# Objective
+## Objective
 To create a dash app that uses networkX and plotly to create a graph of featured channels for a select list of channels and presents some statistics on significant nodes and on the connectivity of the graph.
 
 ## Collecting Data
