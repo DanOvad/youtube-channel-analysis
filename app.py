@@ -103,10 +103,10 @@ app.layout = html.Div(children=[
                             type="text",
                             value="corridor crew",
                             placeholder="Search for relevant youtube channels"),
-                        html.Div(id='search_output'),
-                        html.Button('Search', id='submit-val',n_clicks=0),
-                        html.Div(id='container-button-basic',
-                            children='Enter a value and press submit')
+                        #html.Div(id='search_output'),
+                        html.Button('Search', id='submit-val',n_clicks=0)
+                        #,html.Div(id='container-button-basic',
+                        #    children='Enter a value and press submit')
                     ]
                          
                     )
@@ -156,10 +156,7 @@ app.layout = html.Div(children=[
         ]
     ),
     
-    
-    # Add a div tag for Part 2 - Network
-    # Add a div tags for two parts of Part 2 - interact, then show results
-    # display-channels-selected comes first
+    # Beginning of Results
     html.Div(id='channels_selected',className='row',children=''),
     html.Button('Network', id='network-button',n_clicks=0),
 
@@ -168,10 +165,9 @@ app.layout = html.Div(children=[
     html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
-            style={'width': '90%','textAlign': 'center'},
-            #style={'height': '100vh','width':'100vh'},
+            style={'height': '100vh','width': '100%','textAlign': 'center'},
+            #style={'height': '100vh','w},
             figure=FIG,
-            #className ='six columns',
             responsive=True
         )
     ])
@@ -180,25 +176,25 @@ app.layout = html.Div(children=[
 ])
 
 # Callback to update debugging for dcc.input
-@app.callback(
-    Output(component_id='search_output',component_property='children'),
-    [Input(component_id='channel_search_input',component_property='value')]
-)
-def update_output_div(input_value):
-    return f'Output: {input_value}'
+#@app.callback(
+#    Output(component_id='search_output',component_property='children'),
+#    [Input(component_id='channel_search_input',component_property='value')]
+#)
+#def update_output_div(input_value):
+#    return f'Output: {input_value}'
 
 
 # Call back for debugging html.Button
-@app.callback(
-    dash.dependencies.Output('container-button-basic', 'children'),
-    [dash.dependencies.Input('submit-val', 'n_clicks')],
-    [dash.dependencies.State('channel_search_input', 'value')])
-def update_output(n_clicks, value):
-    
-    return 'The input value was "{}" and the button has been clicked {} times'.format(
-        value,
-        n_clicks
-    )
+#@app.callback(
+#    dash.dependencies.Output('container-button-basic', 'children'),
+#    [dash.dependencies.Input('submit-val', 'n_clicks')],
+#    [dash.dependencies.State('channel_search_input', 'value')])
+#def update_output(n_clicks, value):
+#    
+#    return 'The input value was "{}" and the button has been clicked {} times'.format(
+#        value,
+#        n_clicks
+#    )
 
 
 # Callback to update data table with search results

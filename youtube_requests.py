@@ -51,9 +51,10 @@ def youtube_request_search_channels(query, n):
                         key=config.api_key)
         )
         if not resp.ok:
-            print(json.loads(resp.content))
+            print(json.loads(resp.status_code))
         assert resp.ok
-        nextPageToken = json.loads(resp.content)['nextPageToken']
+        if nextPageToken in json.loads(resp.content):
+            nextPageToken = json.loads(resp.content)['nextPageToken']
         channel_list.extend(json.loads(resp.content)['items'])
     return channel_list
 
@@ -150,9 +151,10 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
     channelid_list = list(set(channelid_list))
     channelid_list.sort()
     
-    with open('data/network_cache.json','r') as cache_file:
-        channel_network_cache = json.load(cache_file)
+    #with open('data/network_cache.json','r') as cache_file:
+        #channel_network_cache = json.load(cache_file)
         
+    channel_network_cache = {}
     if ''.join(channelid_list) in channel_network_cache:
         print("Have see this list before, request from cache")
         network_channels_items_list = channel_network_cache[''.join(channelid_list)]
@@ -196,7 +198,8 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
 
         # Append network_channels_items_list to cache
         channel_network_cache[''.join(channelid_list)] = network_channels_items_list
-        with open('data/network_cache.json','w') as json_file:
-            json.dump(channel_network_cache, json_file)
+        
+        #with open('data/network_cache.json','w') as json_file:
+            #json.dump(channel_network_cache, json_file)
         
     return network_channels_items_list
