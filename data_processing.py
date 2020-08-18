@@ -38,6 +38,7 @@ def extract_channel_details(channels_details_items_list):
         channel_details_dict.update(channel['status'])
         channel_details_dict.update(channel['statistics'])
         channel_details_dict.update(channel['brandingSettings']['channel'])
+        channel_details_dict.update(dict(distance=channel['distance']))
         
         # Append the added channel's new dictionary format to channel details list
         channels_details_list.append(channel_details_dict)
@@ -50,6 +51,7 @@ def create_df_from_details_list(channel_details_list):
     df['commentCount'] = df['commentCount'].map(lambda x: int(x))
     df['viewCount'] = df['viewCount'].map(lambda x: int(x))
     df['subscriberCount'] = df['subscriberCount'].map(lambda x: int(x))
+    df['distance'] = df['distance'].map(lambda x: int(x))
     df['featuredChannelsCount'] = df['featuredChannelsUrls'].apply(lambda x: 0 if type(x) == float else len(x))
     return df
 

@@ -109,16 +109,21 @@ def extract_connected_components():
     return ccs#collections.Counter(sizes)
 
 
-def plotly_network_graph(g, color_setting):
+def plotly_network_graph(g, 
+                         color_setting, 
+                         title='Graph of Featured Channels', 
+                         display_list = []):
     '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"
     
     Test Test'''
     # Extract a list of channel names from node attributes
     channel_names_list = [g.nodes[node]['title'] for node in g.nodes()]
+    if len(display_list) == 0: # Use Origin points
+        # Get a list of nodes to display text
+        display_list = [g.nodes[node]['id'] for node in g.nodes() if g.nodes[node]['distance'] == 0]
     
-    origin = [g.nodes[node]['id'] for node in g.nodes() if g.nodes[node]['distance'] == 0]
     channels_display = [g.nodes[node]['title'] \
-                        if g.nodes[node]['id'] in origin \
+                        if g.nodes[node]['id'] in display_list \
                         else None \
                         for node in g.nodes()]
     # Extract list of subscriber counts from node attributes
@@ -140,7 +145,7 @@ def plotly_network_graph(g, color_setting):
         edge_y.append(None)
     
     
-    # Create first trace for edges in our scatter plot
+    # Create Scatter for edges
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         line=dict(width=0.5, color='#888'),
@@ -159,6 +164,8 @@ def plotly_network_graph(g, color_setting):
     #
     
     node_size_list = [np.log2(subcount + 1) for subcount in subscriber_count_list]
+    
+    # Create Scatter for nodes
     node_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='markers+text',
@@ -204,7 +211,7 @@ def plotly_network_graph(g, color_setting):
                  layout=go.Layout(
                     scene=dict(aspectmode="data"),
                     autosize=True,
-                    title='Graph of Featured Channels',
+                    title=title,
                     titlefont_size=16,
                     #width=700,
                     height=550,
