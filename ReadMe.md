@@ -63,6 +63,7 @@ Degree, In Degree, Out Degree, Betweenness Centrality, In Degree Centrality, Pag
 
 
 Top 8 channels by Betweenness Centrality;
+
 |    | title           |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
 |---:|:----------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
 |  1 | Corridor        |   0.0337084 |                      11 |       29 |          18 |                0.197719  |              0.0608108 |           8080000 |  1469507306 |
@@ -76,7 +77,29 @@ Top 8 channels by Betweenness Centrality;
 
 Top 8 channels by Indegree Centrality;
 
+|    | title           |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|---:|:----------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
+|  1 | Corridor        | 0.0337084   |                      11 |       29 |          18 |              0.197719    |              0.0608108 |           8080000 |  1469507306 |
+| 10 | devinsupertramp | 0.0127246   |                      10 |       25 |          15 |              0.10919     |              0.0506757 |           5920000 |  1438824815 |
+| 92 | TomSka          | 0.0167781   |                      15 |       28 |          13 |              0.0492833   |              0.0439189 |           6440000 |  1657474725 |
+| 44 | LetsPlay        | 3.69413e-17 |                       1 |       12 |          11 |              1.71782e-05 |              0.0371622 |           3850000 |  2437731719 |
+| 22 | Nukazooka       | 0.02434     |                       8 |       19 |          11 |              0.0826987   |              0.0371622 |           2260000 |   670559796 |
+| 20 | RocketJump      | 1.44605e-10 |                       3 |       13 |          10 |              0.0258455   |              0.0337838 |           9000000 |  1904596631 |
+|  9 | Film Riot       | 0.0155565   |                      13 |       23 |          10 |              0.0792312   |              0.0337838 |           1670000 |   191825386 |
+| 14 | Rooster Teeth   | 0.000467877 |                      12 |       21 |           9 |              0.018583    |              0.0304054 |           9470000 |  6081509776 |
+
 Top 8 channels by Page Rank;
+
+|     | title             |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|----:|:------------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
+|  35 | TechLinked        |   0.0509535 |                       6 |       12 |           6 |              5.72607e-06 |              0.0202703 |           1260000 |   183056413 |
+|  50 | LMG Clips         |   0.0509535 |                       6 |       12 |           6 |              5.72607e-06 |              0.0202703 |            178000 |    20307801 |
+|  65 | Carpool Critics   |   0.0509535 |                       6 |       11 |           5 |              0           |              0.0168919 |             42400 |      425975 |
+|  76 | ShortCircuit      |   0.0509535 |                       6 |       11 |           5 |              0           |              0.0168919 |            948000 |    56517459 |
+|  18 | Linus Tech Tips   |   0.0509535 |                       6 |       13 |           7 |              0.0079077   |              0.0236486 |          11500000 |  3924848893 |
+|  89 | Techquickie       |   0.0509535 |                       6 |       12 |           6 |              5.72607e-06 |              0.0202703 |           3530000 |   527112792 |
+|   2 | Corridor Crew     |   0.0399649 |                      12 |       20 |           8 |              0.112594    |              0.027027  |           4110000 |   713277250 |
+| 105 | Channel Super Fun |   0.035747  |                       4 |       10 |           6 |              0           |              0.0202703 |            740000 |    97736777 |
 
 ## Dash Appplication Use
 This tool can be used to assess any community of channels and their subsequent n-distance network. 

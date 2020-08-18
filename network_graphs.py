@@ -109,7 +109,7 @@ def extract_connected_components():
     return ccs#collections.Counter(sizes)
 
 
-def plotly_network_graph(g, color_setting, title):
+def plotly_network_graph(g, color_setting):
     '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"
     
     Test Test'''
@@ -167,7 +167,7 @@ def plotly_network_graph(g, color_setting, title):
         marker=dict(
             showscale=True,
             # colorscale options
-            #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
+            #'Greys' | @'YlGnBu'@ | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
             #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
             #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
             colorscale='YlGnBu',
@@ -204,7 +204,7 @@ def plotly_network_graph(g, color_setting, title):
                  layout=go.Layout(
                     scene=dict(aspectmode="data"),
                     autosize=True,
-                    title=title,
+                    title='Graph of Featured Channels',
                     titlefont_size=16,
                     #width=700,
                     height=550,
