@@ -39,7 +39,9 @@ def create_nx_graph(channel_response, directed = True):
     channel_id_dict = {channel_id:channel_id for channel_id in channel_ids}
     
     # Create a dictionary of distance
-    distance_dict = {channel['id']:channel['distance'] for channel in channel_response}
+    distance_dict = {channel['id']:channel['distance'] \
+                     if 'distance' in channel\
+                     else '' for channel in channel_response}
     
     # Subset created graph to only include channels we have details on
     if directed == True:
@@ -205,12 +207,12 @@ def plotly_network_graph(g, color_setting):
                     title='Graph of Featured Channels',
                     titlefont_size=16,
                     #width=700,
-                    height=700,
+                    height=550,
                     showlegend=False,
                     hovermode='closest',
                     margin=dict(b=20,l=5,r=5,t=40),
                     annotations=[ dict(
-                        text=f"Graph of connected channels",
+                        text=f"Size is log(Subscriber Count);<br>Color is {color_setting}",
                         showarrow=False,
                         xref="paper", yref="paper",
                         x=0.005, y=-0.002 ) ],

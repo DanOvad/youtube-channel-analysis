@@ -29,7 +29,7 @@ SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search("
 G = network_graphs.create_nx_graph(SEARCH_DETAILS_ITEMS_LIST, True)
 
 # Graph G
-FIG = network_graphs.plotly_network_graph(G)
+FIG = network_graphs.plotly_network_graph(G, 'Connections')
 #fig2 = network_graphs.graph_nx_graph(G)
 
 
@@ -245,7 +245,7 @@ def update_network(n_clicks,children):
         channels_details_items_list = youtube_requests.youtube_channel_details_by_network(children,3)
         g = network_graphs.create_nx_graph(channels_details_items_list)    
 
-    return network_graphs.plotly_network_graph(g)
+    return network_graphs.plotly_network_graph(g, 'Connections')
 
 if __name__ == '__main__':
     app.run_server(debug=True)
