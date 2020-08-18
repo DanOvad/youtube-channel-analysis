@@ -34,11 +34,32 @@ The data come from Google's [Youtube Data Api v3](https://developers.google.com/
 
 The API-key lives in a config.py file, which was excluded from this repo for security purposes. If you would like to replicate this project: create a GCP project, generate an API key, and write a config.py file to reference that API-key. The quota limit is 10,000 units per day. `youtube.search.list` costs 100 units per request, while `youtube.channels.list` costs 1 unit per request.
 
+## The Data - using jsons and structuring data
+Show example of search json and channel json.
+Show how these were transformed to networkX graphs.
 
-Results
+## Graphs
 
-Use
+Show the types of graphs (Directional Graph, Undirected Graph, strongly connected components)
 
-Conclusion
+## Statstics
 
-Next Steps
+Degree, In Degree, Out Degree, Betweenness Centrality, In Degree Centrality, Page Rank
+
+## Use
+This tool can be used to assess any community of channels and their subsequent n-distance network. 
+
+## Conclusion
+
+## Next Steps
+
+There are a lot of questions that this analysis does not answer. There are also a lot of features that I can add to this tool. 
+
+### Next Questions
+ - Analyzing the universe of YouTube Videos. 
+ - Expanding the size of nodes.
+ - Adding a weight to page rank and other metrics based on subscriber count and total views.
+
+### Next Features
+ - I would like to allow a user to select a variety of differing channels and watch how they link between separate networks. 
+ - Take advantage of selection feature in Plotly.
