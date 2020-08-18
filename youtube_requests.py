@@ -163,8 +163,12 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
         # Request detail_items for list of channelIds
         print("Havent seen this list, request and cache")
         channels_details_items_list = youtube_request_channel_list(channelid_list)
+        for item in channels_details_items_list:
+            item['distance'] = 0
+        # Caching is broken
         #channel_network_cache[''.join(channelid_list)] = channel_details_items_list
-
+        
+        
         # Instantiate unique set of channelIds
         network_channels_id_set = set(channelid_list)
         #network_channels_id_set = set([channel['id'] for channel in channels_details_items_list])
@@ -192,6 +196,9 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
 
             # Request channel details from Youtube using list of channel ids
             neighbors_channels_items_list = youtube_request_channel_list(list(added_channels_id_set))
+            
+            for item in neighbors_channels_items_list:
+                item['distance'] = degree
 
             # Add n-degree channel details response
             network_channels_items_list.extend(neighbors_channels_items_list)

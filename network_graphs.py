@@ -11,7 +11,10 @@ import plotly.graph_objects as go
 def create_nx_graph(channel_response, directed = True):
     '''Takes in a list of channel details response items and returns a graph object in networkX.
     
-    Specifically subsets only those channels queried.'''
+    Specifically subsets only those channels queried.
+    
+    channel_response: list of dictionaries, each entry represents a channel node;
+    directed: boolean, if true produces a directed graph instead of a undirected graph.'''
     
     # Create dictionary to instantiate graph
     channel_network = {channel['id']:channel['brandingSettings']['channel']['featuredChannelsUrls'] \
@@ -33,6 +36,10 @@ def create_nx_graph(channel_response, directed = True):
 
     # Create a list of channelIds to subset the graph
     channel_ids = [channel['id'] for channel in channel_response]
+    channel_id_dict = {channel_id:channel_id for channel_id in channel_ids}
+    
+    # Create a dictionary of distance
+    distance_dict = {channel['id']:channel['distance'] for channel in channel_response}
     
     # Subset created graph to only include channels we have details on
     if directed == True:
@@ -57,6 +64,10 @@ def create_nx_graph(channel_response, directed = True):
     nx.set_node_attributes(h, channel_names, name='title')
     # Set attribute for SubscribeCount
     nx.set_node_attributes(h, subscriber_count_dict, name='subscriberCount')
+    # Set the Id as an attribute
+    nx.set_node_attributes(h, channel_id_dict, name='id')
+    # Set the distance of each node
+    nx.set_node_attributes(h, distance_dict, name='distance')
     
     return h
 
@@ -96,11 +107,18 @@ def extract_connected_components():
     return ccs#collections.Counter(sizes)
 
 
-def plotly_network_graph(g):
-    '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"'''
+def plotly_network_graph(g, color_setting):
+    '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"
+    
+    Test Test'''
     # Extract a list of channel names from node attributes
     channel_names_list = [g.nodes[node]['title'] for node in g.nodes()]
     
+    origin = [g.nodes[node]['id'] for node in g.nodes() if g.nodes[node]['distance'] == 0]
+    channels_display = [g.nodes[node]['title'] \
+                        if g.nodes[node]['id'] in origin \
+                        else None \
+                        for node in g.nodes()]
     # Extract list of subscriber counts from node attributes
     subscriber_count_list = [g.nodes[node]['subscriberCount'] for node in g.nodes()]
     
@@ -141,8 +159,8 @@ def plotly_network_graph(g):
     node_size_list = [np.log2(subcount + 1) for subcount in subscriber_count_list]
     node_trace = go.Scatter(
         x=node_x, y=node_y,
-        mode='markers',
-        text=channel_names_list,
+        mode='markers+text',
+        text=channels_display,
         hoverinfo='text',
         marker=dict(
             showscale=True,
@@ -156,21 +174,29 @@ def plotly_network_graph(g):
             size=node_size_list,
             colorbar=dict(
                 thickness=15,
-                title='Node Connections',
+                title=color_setting,
                 xanchor='left',
                 titleside='right'
             ),
             line_width=2))
     node_adjacencies = []
     node_text = []
-    
+    node_distance = [g.nodes[node]['distance'] for node in g.nodes()]
     
     for node, adjacencies in enumerate(g.adjacency()):
         node_adjacencies.append(len(adjacencies[1]))
-        node_text.append(f'{channel_names_list[node]} has {str(len(adjacencies[1]))} connections and {subscriber_count_list[node]} subscribers')
+        node_text.append(f'{channel_names_list[node]} ({node_distance[node]}) has {str(len(adjacencies[1]))} connections and {subscriber_count_list[node]} subscribers')
+    node_distance = [g.nodes[node]['distance'] for node in g.nodes()]
+    
+    # Set the setting for the
+    if color_setting == 'Distance':
+        node_trace.marker.color = node_distance
+    elif color_setting == 'Connections':
+        node_trace.marker.color = node_adjacencies
+    else:
+        print("Invalid color setting; options: ['Connections','Distance']. Used 'Connections'")
         
-    node_trace.marker.color = node_adjacencies
-    node_trace.text = node_text
+    node_trace.hovertext = node_text
     
     fig = go.Figure(data=[edge_trace, node_trace],
                  layout=go.Layout(
