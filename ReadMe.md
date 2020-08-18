@@ -44,9 +44,14 @@ Show how these were transformed to networkX graphs.
 
 Show the types of graphs (Directional Graph, Undirected Graph, strongly connected components)
 
-Graph of Corridor Digital's 
+Graph of Corridor Digital's 3-distance featured network
 ![image](images/corridor-3-distance.png)
 ![image](images/corridor-3-connections.png)
+
+Graph of Corridor Digital's strongly connected components in their 3-distance featured network
+
+![image](images/strong-corridor-3-distance.png)
+![image](images/strong-corridor-3-connections.png)
 
 ## Statstics
 
