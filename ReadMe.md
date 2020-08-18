@@ -10,6 +10,7 @@ This will produce be a directional graph, for instance `channel A` might point t
 
 **Note:** Due to the crawling nature of this project, the analysis is relative to this subset of channels in the YouTube universe, therefore the statistics will change for different sized networks containing different points of origin.
 
+--------------
 
 ## Context
 Each channel has an option to feature other youtube channels on their profile page. This appears on their profile page as a tab. As in this example for Google's YouTube channel.
@@ -24,15 +25,16 @@ For example BBC.
 
 Although a lot of channels feature channels with similar contexts, channels of friends, and/or collaborating channels. Such as Corridor Crew, The Slow Mo Guys, and Smarter Every Day.
 
-## Summary
-
+-----------------------------
 ## Objective
 To create a dash app that uses networkX and plotly to generate a graph of featured channels for a select list of channels as our point of origin, and to conduct statstical analysis on significant nodes in the network and on the connectivity of the graph.
 
 ## Collecting Data
 The data come from Google's [Youtube Data Api v3](https://developers.google.com/youtube/v3/docs). I created a GCP project, generated an API key, and used two API endpoints; specifically `youtube.search.list` and `youtube.channels.list`.
 
-The API-key lives in a config.py file, which was excluded from this repo for security purposes. If you would like to replicate this project: create a GCP project, generate an API key, and write a config.py file to reference that API-key. The quota limit is 10,000 units per day. `youtube.search.list` costs 100 units per request, while `youtube.channels.list` costs 1 unit per request.
+The API-key lives in a config.py file, which was excluded from this repo for security purposes. If you would like to replicate this project: create a GCP project, generate an API key, and write a config.py file to reference that API-key. **The quota limit is 10,000 units per day.**
+ - `youtube.search.list` costs **100 units** per request
+ - `youtube.channels.list` costs **1 unit** per request
 
 ## The Data - using jsons and structuring data
 Show example of search json and channel json.
@@ -42,14 +44,19 @@ Show how these were transformed to networkX graphs.
 
 Show the types of graphs (Directional Graph, Undirected Graph, strongly connected components)
 
+Graph of Corridor Digital's 
+![image](images/corridor-3-distance.png)
+![image](images/corridor-3-connections.png)
+
 ## Statstics
 
 Degree, In Degree, Out Degree, Betweenness Centrality, In Degree Centrality, Page Rank
 
-## Use
+## Dash Appplication Use
 This tool can be used to assess any community of channels and their subsequent n-distance network. 
 
-## Conclusion
+------------------------
+# Conclusion
 
 ## Next Steps
 
