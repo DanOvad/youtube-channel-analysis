@@ -109,7 +109,7 @@ def extract_connected_components():
     return ccs#collections.Counter(sizes)
 
 
-def plotly_network_graph(g, color_setting):
+def plotly_network_graph(g, color_setting, title):
     '''"Python code: <a href='https://plotly.com/ipython-notebooks/network-graphs/'> https://plotly.com/ipython-notebooks/network-graphs/</a>"
     
     Test Test'''
@@ -204,7 +204,7 @@ def plotly_network_graph(g, color_setting):
                  layout=go.Layout(
                     scene=dict(aspectmode="data"),
                     autosize=True,
-                    title='Graph of Featured Channels',
+                    title=title,
                     titlefont_size=16,
                     #width=700,
                     height=550,

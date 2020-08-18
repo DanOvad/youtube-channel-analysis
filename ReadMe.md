@@ -37,8 +37,12 @@ The API-key lives in a config.py file, which was excluded from this repo for sec
  - `youtube.channels.list` costs **1 unit** per request
 
 ## The Data - using jsons and structuring data
-Show example of search json and channel json.
-Show how these were transformed to networkX graphs.
+The `youtube.channels.list` endpoint returns a json with a variety of parts about the channelId requested.
+
+```
+['kind', 'etag', 'id', 'snippet', 'contentDetails', 'statistics', 'topicDetails', 'status', 'brandingSettings', 'contentOwnerDetails']
+```
+
 
 ## Graphs
 
@@ -56,6 +60,23 @@ Graph of Corridor Digital's strongly connected components in their 3-distance fe
 ## Statstics
 
 Degree, In Degree, Out Degree, Betweenness Centrality, In Degree Centrality, Page Rank
+
+
+Top 8 channels by Betweenness Centrality;
+|    | title           |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|---:|:----------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
+|  1 | Corridor        |   0.0337084 |                      11 |       29 |          18 |                0.197719  |              0.0608108 |           8080000 |  1469507306 |
+|  2 | Corridor Crew   |   0.0399649 |                      12 |       20 |           8 |                0.112594  |              0.027027  |           4110000 |   713277250 |
+| 10 | devinsupertramp |   0.0127246 |                      10 |       25 |          15 |                0.10919   |              0.0506757 |           5920000 |  1438824815 |
+| 22 | Nukazooka       |   0.02434   |                       8 |       19 |          11 |                0.0826987 |              0.0371622 |           2260000 |   670559796 |
+| 23 | Mike Diva       |   0.0112591 |                       7 |       15 |           8 |                0.0796148 |              0.027027  |            650000 |   142893349 |
+|  9 | Film Riot       |   0.0155565 |                      13 |       23 |          10 |                0.0792312 |              0.0337838 |           1670000 |   191825386 |
+| 15 | SoKrispyMedia   |   0.0152009 |                      10 |       18 |           8 |                0.0741729 |              0.027027  |           1150000 |   319054747 |
+|  0 | Corridor Cast   |   0.0219452 |                      10 |       14 |           4 |                0.0515002 |              0.0135135 |            111000 |     5011173 |
+
+Top 8 channels by Indegree Centrality;
+
+Top 8 channels by Page Rank;
 
 ## Dash Appplication Use
 This tool can be used to assess any community of channels and their subsequent n-distance network. 
