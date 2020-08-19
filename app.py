@@ -17,8 +17,6 @@ import youtube_requests
 import data_processing
 import network_graphs
 
-
-
 #with open('data/corridor_search.json','r') as json_file:
 #    SEARCH_DETAILS_ITEMS_LIST = json.load(json_file)
 

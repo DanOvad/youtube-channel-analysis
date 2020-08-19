@@ -1,18 +1,21 @@
 # Read Me
 
+## Objective
+To create a dash app that uses networkX and plotly to generate a graph of featured channels for a select list of channels as our point of origin, and to conduct statstical analysis on significant nodes in the network and on the connectivity of the graph.
+
 ## Purpose
 
-The purpose of this project is to create a tool that can plot graphs of YouTube channels by crawling through featured channels on a profile page. This graph can then be used to analyze each channels' relative significance in that network. 
+The purpose of this project is visualize graphs of YouTube channels by crawling through featured channels listed on profile pages. This graph can then be used to analyze each channels' relative significance in that network.
 
-In this approach we start off with a list of channels as our point of origin, extract the list of channels featured on each profile page, and then repeat the process `n` times.
+In this approach, we start off with a list of channels as our point of origin, extract the list of channels featured on each profile page, and then repeat the process `n` times.
 
-This will produce be a directional graph, for instance `channel A` might point to `channel B,` but `channel B` might not point to `channel A.`
+This will produce a directional graph, which means each edge has directionality involved. For instance `channel A` might point to `channel B`, but `channel B` might not point to `channel A`. If both directions exist, than they are both counted as two separate edges.
 
 **Note:** Due to the crawling nature of this project, the analysis is relative to this subset of channels in the YouTube universe, therefore the statistics will change for different sized networks containing different points of origin.
 
 --------------
 
-## Context
+## Background Context
 Each channel has an option to feature other youtube channels on their profile page. This appears on their profile page as a tab. As in this example for Google's YouTube channel.
 ![image](images/sample-YT-featured-channels.png)
 
@@ -25,9 +28,11 @@ For example BBC.
 
 Although a lot of channels feature channels with similar contexts, channels of friends, and/or collaborating channels. Such as Corridor Crew, The Slow Mo Guys, and Smarter Every Day.
 
+![image](images/sample-YT-corridor)
+
+![image](images/sample-YT-smartereveryday)
+
 -----------------------------
-## Objective
-To create a dash app that uses networkX and plotly to generate a graph of featured channels for a select list of channels as our point of origin, and to conduct statstical analysis on significant nodes in the network and on the connectivity of the graph.
 
 ## Collecting Data
 The data come from Google's [Youtube Data Api v3](https://developers.google.com/youtube/v3/docs). I created a GCP project, generated an API key, and used two API endpoints; specifically `youtube.search.list` and `youtube.channels.list`.
@@ -46,7 +51,9 @@ The `youtube.channels.list` endpoint returns a json with a variety of parts abou
 
 ## Graphs
 
-Show the types of graphs (Directional Graph, Undirected Graph, strongly connected components)
+We used NetworkX to graph the network of channels. Specifically using networkX's DiGraph object. We then used plotly to visualize the graph by individually plotting each node and edge in two separate traces as Scatter Plots.
+
+The graphs are visualized using a force-directed graph drawing utilizing the Kamada-Kawai algorithm for determining the position of each node, instead of the standard spring layout (Fruchterman-Ringold algorithm).
 
 Graph of Corridor Digital's 3-distance featured network
 ![image](images/corridor-3-distance.png)
@@ -64,20 +71,20 @@ Degree, In Degree, Out Degree, Betweenness Centrality, In Degree Centrality, Pag
 
 Top 8 channels by Betweenness Centrality;
 
-|    | title           |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|    | title           |   page_rank |   out_degree |   degree |   in_degree |   b_centrality |   id-centrality |   subCount |   viewCount |
 |---:|:----------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
-|  1 | Corridor        |   0.0337084 |                      11 |       29 |          18 |                0.197719  |              0.0608108 |           8080000 |  1469507306 |
-|  2 | Corridor Crew   |   0.0399649 |                      12 |       20 |           8 |                0.112594  |              0.027027  |           4110000 |   713277250 |
-| 10 | devinsupertramp |   0.0127246 |                      10 |       25 |          15 |                0.10919   |              0.0506757 |           5920000 |  1438824815 |
-| 22 | Nukazooka       |   0.02434   |                       8 |       19 |          11 |                0.0826987 |              0.0371622 |           2260000 |   670559796 |
-| 23 | Mike Diva       |   0.0112591 |                       7 |       15 |           8 |                0.0796148 |              0.027027  |            650000 |   142893349 |
-|  9 | Film Riot       |   0.0155565 |                      13 |       23 |          10 |                0.0792312 |              0.0337838 |           1670000 |   191825386 |
-| 15 | SoKrispyMedia   |   0.0152009 |                      10 |       18 |           8 |                0.0741729 |              0.027027  |           1150000 |   319054747 |
-|  0 | Corridor Cast   |   0.0219452 |                      10 |       14 |           4 |                0.0515002 |              0.0135135 |            111000 |     5011173 |
+|  1 | Corridor        |   0.0337084 |                      11 |       29 |          18 |                0.197719  |              0.0608108 |           8,080,000 |  1,469,507,306 |
+|  2 | Corridor Crew   |   0.0399649 |                      12 |       20 |           8 |                0.112594  |              0.027027  |           4,110,000 |   713,277,250 |
+| 10 | devinsupertramp |   0.0127246 |                      10 |       25 |          15 |                0.10919   |              0.0506757 |           5,920,000 |  1,438,824,815 |
+| 22 | Nukazooka       |   0.02434   |                       8 |       19 |          11 |                0.0826987 |              0.0371622 |           2,260,000 |   670,559,796 |
+| 23 | Mike Diva       |   0.0112591 |                       7 |       15 |           8 |                0.0796148 |              0.027027  |            650,000 |   142,893,349 |
+|  9 | Film Riot       |   0.0155565 |                      13 |       23 |          10 |                0.0792312 |              0.0337838 |           1,670,000 |   191,825,386 |
+| 15 | SoKrispyMedia   |   0.0152009 |                      10 |       18 |           8 |                0.0741729 |              0.027027  |           1,150,000 |   319,054,747 |
+|  0 | Corridor Cast   |   0.0219452 |                      10 |       14 |           4 |                0.0515002 |              0.0135135 |            111,000 |     5,011,173 |
 
 Top 8 channels by Indegree Centrality;
 
-|    | title           |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|    | title           |   page_rank |   out_degree |   degree |   in_degree |   b_centrality |   id-centrality |   subCount |   viewCount |
 |---:|:----------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
 |  1 | Corridor        | 0.0337084   |                      11 |       29 |          18 |              0.197719    |              0.0608108 |           8080000 |  1469507306 |
 | 10 | devinsupertramp | 0.0127246   |                      10 |       25 |          15 |              0.10919     |              0.0506757 |           5920000 |  1438824815 |
@@ -90,7 +97,7 @@ Top 8 channels by Indegree Centrality;
 
 Top 8 channels by Page Rank;
 
-|     | title             |   page_rank |   featuredChannelsCount |   degree |   in_degree |   betweenness_centrality |   in_degree_centrality |   subscriberCount |   viewCount |
+|    | title           |   page_rank |   out_degree |   degree |   in_degree |   b_centrality |   id-centrality |   subCount |   viewCount |
 |----:|:------------------|------------:|------------------------:|---------:|------------:|-------------------------:|-----------------------:|------------------:|------------:|
 |  35 | TechLinked        |   0.0509535 |                       6 |       12 |           6 |              5.72607e-06 |              0.0202703 |           1260000 |   183056413 |
 |  50 | LMG Clips         |   0.0509535 |                       6 |       12 |           6 |              5.72607e-06 |              0.0202703 |            178000 |    20307801 |
