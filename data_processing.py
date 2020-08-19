@@ -19,7 +19,7 @@ import collections
 #As input takes a list of dictionaries where each dictionary is a specific 'item' from the original json.
 
 
-### Pulling channel deatils by channel origin
+### Pulling channel details by channel origin
 def extract_channel_details(channels_details_items_list):
     '''Function to flatten dictionary nesting of channel resp for dataframe format.
     Returns a list of dictionaries where each key in the dictionary maps to a column of interest.
@@ -39,6 +39,8 @@ def extract_channel_details(channels_details_items_list):
         channel_details_dict.update(channel['statistics'])
         channel_details_dict.update(channel['brandingSettings']['channel'])
         channel_details_dict.update(dict(distance=channel['distance']))
+        #print(channel.keys())
+        
         
         # Append the added channel's new dictionary format to channel details list
         channels_details_list.append(channel_details_dict)

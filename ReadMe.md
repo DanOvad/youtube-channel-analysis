@@ -5,7 +5,7 @@ To create a dash app that uses networkX and plotly to generate a graph of featur
 
 ## Purpose
 
-The purpose of this project is visualize graphs of YouTube channels by crawling through featured channels listed on profile pages. This graph can then be used to analyze each channels' relative significance in that network.
+The purpose of this project is visualize graphs of YouTube channels by crawling through featured channels listed on profile pages. This graph can then be used to analyze each channel's relative significance in that network.
 
 In this approach, we start off with a list of channels as our point of origin, extract the list of channels featured on each profile page, and then repeat the process `n` times.
 

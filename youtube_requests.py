@@ -11,6 +11,7 @@ import config
 import networkx as nx
 
 import collections
+from os import path
 
 def determine_max_result_list(n, batch_size):
     '''Function to return a list of max results parameters for a specific number of requests and batch_sizes.
@@ -104,11 +105,18 @@ def youtube_request_channel_list(channelid_list):
 def youtube_channel_details_by_search(query, n):
     '''Returns a details list of channels for a specific search query and number of requested results.'''
     # Load cached dictionary with {key:value} is {query string:response_items}
-    with open('data/query_cache.json','r') as query_cache:
-        query_cache_dict = json.load(query_cache)
+    cache_key = query.lower()+str(n)
+    # Check if cache file exists, if it does open it; 
+    if path.exists('data/query_cache.json'):
+        with open('data/query_cache.json','r') as query_cache:
+            query_cache_dict = json.load(query_cache)
+    # Otherwise, we will overwrite it later
+    else: 
+        query_cache_dict = {}
+
         
-    if query in query_cache_dict:
-        channels_details_items_list = query_cache_dict[query]
+    if cache_key in query_cache_dict:
+        channels_details_items_list = query_cache_dict[cache_key]
         print("Already seen this query")
     else:
         print("Haven't seen this query yet")
@@ -120,8 +128,13 @@ def youtube_channel_details_by_search(query, n):
 
         # API REQUEST (quota cost 1) Request channel details for list of channelIds
         channels_details_items_list = youtube_request_channel_list(channels_id_list)
-
-        query_cache_dict[query] = channels_details_items_list
+        
+        # Set these channels as origin
+        for item in channels_details_items_list:
+            item['distance'] = 0
+            
+        # Caching
+        query_cache_dict[cache_key] = channels_details_items_list
         with open('data/query_cache.json','w') as query_json:
             json.dump(query_cache_dict, query_json)
     
@@ -150,28 +163,27 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
     # Caching using sorted strings
     channelid_list = list(set(channelid_list))
     channelid_list.sort()
-    
-    #with open('data/network_cache.json','r') as cache_file:
-        #channel_network_cache = json.load(cache_file)
-        
-    channel_network_cache = {}
-    if ''.join(channelid_list) in channel_network_cache:
+    cache_key = ''.join(channelid_list) + str(max_degree)
+    if path.exists('data/network_cache.json'):
+        with open('data/network_cache.json','r') as cache_file:
+            channel_network_cache = json.load(cache_file)
+    else:
+        channel_network_cache = {}
+    if cache_key in channel_network_cache:
         print("Have see this list before, request from cache")
-        network_channels_items_list = channel_network_cache[''.join(channelid_list)]
+        network_channels_items_list = channel_network_cache[cache_key]
         return network_channels_items_list
     else:
         # Request detail_items for list of channelIds
-        print("Havent seen this list, request and cache")
+        print("Have not seen this list, issuing request and caching")
         channels_details_items_list = youtube_request_channel_list(channelid_list)
+        
+        # Set distance = 0 for points of origin
         for item in channels_details_items_list:
             item['distance'] = 0
-        # Caching is broken
-        #channel_network_cache[''.join(channelid_list)] = channel_details_items_list
-        
         
         # Instantiate unique set of channelIds
         network_channels_id_set = set(channelid_list)
-        #network_channels_id_set = set([channel['id'] for channel in channels_details_items_list])
 
         # Instantiate the output, a list of dictionaries, each dict represents a channel
         network_channels_items_list = []
@@ -204,9 +216,9 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
             network_channels_items_list.extend(neighbors_channels_items_list)
 
         # Append network_channels_items_list to cache
-        channel_network_cache[''.join(channelid_list)] = network_channels_items_list
+        channel_network_cache[cache_key] = network_channels_items_list
         
-        #with open('data/network_cache.json','w') as json_file:
-            #json.dump(channel_network_cache, json_file)
+        with open('data/network_cache.json','w') as json_file:
+            json.dump(channel_network_cache, json_file)
         
     return network_channels_items_list
