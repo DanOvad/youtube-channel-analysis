@@ -210,17 +210,6 @@ def display_search_table(n_clicks, value):
     
     print("Ran Update Search datatable")
     DF = run_update_search_DF(value)
-    # For a search query and number of results, get back a list of dictionaries of channel details
-    #channels_details_items_list = youtube_requests.youtube_channel_details_by_search(value,10)
-      
-    # Flatten the data and place into DataFrame
-    #channels_details_list = data_processing.extract_channel_details(channels_details_items_list)
-    #DF = data_processing.create_df_from_details_list(channels_details_list)
-    
-    # Subset the data, if we don't datatypes cause problems in dash_table.DataTable
-    ##features = ['id','title','subscriberCount','viewCount','featuredChannelsCount']
-    #DF = DF[FEATURES]
-    
     return DF.to_dict('records')
 
 @app.callback(
@@ -241,10 +230,6 @@ def display_selected_rows(selected_row_ids):
 dash.dependencies.State('dropdown-max-degree','value')])
 
 def update_network(n_clicks,row_ids, value):
-    #print(children)
-    #print(value)
-    print(row_ids)
-    print(type(row_ids))
     print("Ran Update Network graph")
     if row_ids is None:
         return FIG
