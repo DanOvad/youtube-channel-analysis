@@ -134,6 +134,10 @@ app.layout = html.Div(children=[
                                         page_action='native',
                                         page_current=0,
                                         page_size=10,
+                                        style_cell={
+                                            'whiteSpace': 'normal',
+                                            'height': 'auto',
+                                        },
                                         style_cell_conditional=[
                                             {'if': {'column_id': c},
                                                 'textAlign': 'left'
@@ -158,8 +162,19 @@ app.layout = html.Div(children=[
     html.Div(id='selection-container',className='row',
         children=[
             html.Div(className='six columns',
-                children=['Left Side',
+                children=[
+                    html.P(children='You selected the following channels:'),
                     dash_table.DataTable(id='selected-data-table',
+                        style_as_list_view=True,
+                        style_cell={
+                            'whiteSpace': 'normal',
+                            'height': 'auto',
+                        },
+                        style_cell_conditional=[
+                            {'if': {'column_id': c},
+                                'textAlign': 'left'
+                            } for c in ['title']
+                        ],
                         css=[{"selector": ".show-hide", "rule": "display: none"}],
                         columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
                         hidden_columns=['id'])
