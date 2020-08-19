@@ -170,12 +170,13 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
     else:
         channel_network_cache = {}
     if cache_key in channel_network_cache:
-        print("Have see this list before, request from cache")
+        print("Have see this list before, pulling from cache.")
+        # Pull from cache
         network_channels_items_list = channel_network_cache[cache_key]
         return network_channels_items_list
     else:
         # Request detail_items for list of channelIds
-        print("Have not seen this list, issuing request and caching")
+        print("Have not seen this list, issuing request and caching.")
         channels_details_items_list = youtube_request_channel_list(channelid_list)
         
         # Set distance = 0 for points of origin
