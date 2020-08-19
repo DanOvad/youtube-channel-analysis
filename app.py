@@ -92,48 +92,66 @@ app.layout = html.Div(children=[
                             #className='six columns',
                             style = {"border":"1px black solid"},
                         children=
-                    # Add a div tag for Part 1 - Search
                     [
                         dcc.Input(
                             id="channel_search_input",
                             type="text",
                             value="corridor crew",
                             placeholder="Search for relevant youtube channels"),
-                        #html.Div(id='search_output'),
                         html.Button('Search', id='submit-val',n_clicks=0)
-                        #,html.Div(id='container-button-basic',
-                        #    children='Enter a value and press submit')
                     ]
                          
+                    ),
+                                        html.H5(children='Part Two - Select Channels'),
+                    html.P(children='Select which channels you want to graph"'),
+                    #html.Div(id = 'box-two', 
+                        #children = [
+                    html.Div(style = {"border":"1px black solid"},
+                        children=[
+                            dash_table.DataTable(id='datatable-interactive',
+                                columns=[{"name": column, "id": column, "selectable":True} \
+                                         for column in DF[FEATURES].columns],
+                                css=[{"selector": ".show-hide", "rule": "display: none"}],
+                                # Hide the id column, but need it to generate selected list
+                                hidden_columns=['id'],
+
+                                # Call Back replaces this field 
+                                data=DF.to_dict('records'),
+
+                                filter_action='native',
+                                #sort_action="multi",
+                                sort_mode="single",
+                                row_selectable='multi',
+                                page_action='native',
+                                page_current=0,
+                                page_size=10,
+                                style_cell={
+                                    'whiteSpace': 'normal',
+                                    'height': 'auto',
+                                },
+                                style_cell_conditional=[
+                                    {'if': {'column_id': c},
+                                        'textAlign': 'left'
+                                    } for c in ['title']
+                                ],
+                                style_as_list_view=True
+                            )
+                        ]
                     )
                 ]
             ),
             
-            html.Div(id='select-channel-section',
+            html.Div(id='selected-channel-table',
                      className='six columns',
                 children=[
-                    html.H5(children='Part Two - Select Channels'),
-                    html.P(children='Select which channels you want to graph"'),
-                    #html.Div(id = 'box-two', 
-                        #children = [
-                            html.Div(style = {"border":"1px black solid"},
-                                children=[
-                                    dash_table.DataTable(id='datatable-interactive',
-                                        columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
-                                        css=[{"selector": ".show-hide", "rule": "display: none"}],
-                                        # Hide the id column, but need it to generate selected list
-                                        hidden_columns=['id'],
-
-                                        # Call Back replaces this field 
-                                        data=DF.to_dict('records'),
-
-                                        filter_action='native',
-                                        #sort_action="multi",
-                                        sort_mode="single",
-                                        row_selectable='multi',
-                                        page_action='native',
-                                        page_current=0,
-                                        page_size=10,
+                    html.Div(id='selection-container',className='row',
+                    children=[
+                        html.Div(
+                            children=[
+                                html.P(children='You selected the following channels:'),
+                                html.Div(style = {"border":"1px black solid"},
+                                    children = [dash_table.DataTable(id='selected-data-table',
+                                        style_as_list_view=True,
                                         style_cell={
                                             'whiteSpace': 'normal',
                                             'height': 'auto',
@@ -143,65 +161,39 @@ app.layout = html.Div(children=[
                                                 'textAlign': 'left'
                                             } for c in ['title']
                                         ],
-                                        style_as_list_view=True
-                                    )
-                                ]
-                            )
-                        #]#
-                    #)#
+                                        css=[{"selector": ".show-hide", "rule": "display: none"}],
+                                        columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
+                                        hidden_columns=['id'])
+                                    ]
+                                )
+                            ]
+                        )
+                    ]
+                    ),
 
+                html.Div(className='row',children=[
+                    html.P(children='Select the max distance to crawl and hit "Network"'),
+                    dcc.Dropdown(id='dropdown-max-degree',
+                        className='six columns',
+                        options=[
+                            {'label': '1', 'value': 1},
+                            {'label': '2', 'value': 2},
+                            {'label': '3', 'value': 3},
+                            {'label': '4', 'value': 4},
+                            {'label': '5', 'value': 5},
+                            {'label': '6', 'value': 6}
+                        ],
+                        placeholder='select max degree'
+                        #,value=3
+                    ),html.Button('Network', id='network-button',n_clicks=0, className='six columns')
+                ])
                 ]
             )
              
                 
         ]
     ),
-    
-    # Beginning of Results
-    html.Div(id='channels_selected',className='row',children=''),
-    html.Div(id='selection-container',className='row',
-        children=[
-            html.Div(className='six columns',
-                children=[
-                    html.P(children='You selected the following channels:'),
-                    dash_table.DataTable(id='selected-data-table',
-                        style_as_list_view=True,
-                        style_cell={
-                            'whiteSpace': 'normal',
-                            'height': 'auto',
-                        },
-                        style_cell_conditional=[
-                            {'if': {'column_id': c},
-                                'textAlign': 'left'
-                            } for c in ['title']
-                        ],
-                        css=[{"selector": ".show-hide", "rule": "display: none"}],
-                        columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
-                        hidden_columns=['id'])
-                ]
-            ),
-            html.Div(className='six columns',children='RightSide'),
-            'TEST SPACE'
-        ]
-    ),
-    
-    
-    dcc.Dropdown(id='dropdown-max-degree',
-            options=[
-                {'label': '1', 'value': 1},
-                {'label': '2', 'value': 2},
-                {'label': '3', 'value': 3},
-                {'label': '4', 'value': 4},
-                {'label': '5', 'value': 5},
-                {'label': '6', 'value': 6}
-            ],
-            placeholder='select max degree',
-            value=3
-    ),
-    html.Button('Network', id='network-button',n_clicks=0),
-    
-    #html.Div(id='datatable-interactivity-container', children='string for container'),
-    # html.Div(id='results-section',children="Results Section")
+
     html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
@@ -226,17 +218,6 @@ def display_search_table(n_clicks, value):
     print("Ran Update Search datatable")
     DF = run_update_search_DF(value)
     return DF.to_dict('records')
-
-@app.callback(
-    dash.dependencies.Output('channels_selected','children'),
-    [dash.dependencies.Input('datatable-interactive','selected_row_ids')])
-def display_selected_rows(selected_row_ids):
-    if selected_row_ids is None:
-        print("No row Selected")
-        return None
-    else:
-        print("Selected a row")
-        return selected_row_ids
 
 @app.callback(
     dash.dependencies.Output('plotly','figure'),
