@@ -1,0 +1,3 @@
+runtime: python37
+
+entrypoint: gunicorn -b :$PORT main:server --timeout 120

@@ -12,3 +12,7 @@ client_secret_838897117500-648ihe6tug228rm5riop5k85oi48up18.apps.googleuserconte
 __pycache__/
 scratch.ipynb
 scratch/
+
+# Things for Gcloud
+venv/
+.gcloudignore
