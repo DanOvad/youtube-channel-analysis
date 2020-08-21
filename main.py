@@ -73,7 +73,7 @@ app.layout = html.Div(children=[
                                         "border":"1px black solid"},
         children=
             [
-                html.H1(style ={"margin":dict(b=20,l=40,r=10,t=40)},
+                html.H1(style ={"margin":dict(b=20,l=30,r=100,t=40)},
                     children=[
                         html.I(className="fab fa-youtube",
                                     style={'size':'14px','color':'#FF0000'}),
@@ -88,30 +88,37 @@ app.layout = html.Div(children=[
     ),
     
     # FIRST SECTION
-    html.Div(id='search-channel-section',className='row',
+    html.Div(id='search-channel-section',
+             className='row',
+             
         children=[
             html.Div(id='search-section-input', 
-                    className='six columns',
+                className='six columns',
+                #style = {"border":"1px black solid"},
+                ##        "margin-left": "30px"},
                 children=[
-                    html.H5('Part 1 - Search Channels'),
+                    html.H5('Part One - Search Channels'),
                     html.P(children='Type in a search query and hit search to see a list of channels.'),
                     html.Div(id = 'box-one',
                             #className='six columns',
                             style = {"border":"1px black solid"},
-                        children=
-                    [
-                        dcc.Input(
-                            id="channel_search_input",
-                            type="text",
-                            #value='Corridor Crew',
-                            #value="corridor crew",
-                            placeholder="Search channels"),
-                        html.Button('Search', id='submit-val',n_clicks=0)
-                    ]
-                         
-                    ),
-                                        html.H5(children='Part Two - Select Channels'),
-                    html.P(children='Select which channels you want to graph"'),
+                        children=[
+                            dcc.Input(
+                                id="channel_search_input",
+                                type="text",
+                                #value='Corridor Crew',
+                                #value='Corridor Crew',
+                                placeholder="Search channels"),
+                            html.Button('Search', id='submit-val',n_clicks=0)
+                        ]
+
+                    )
+                ]
+            ),
+            html.Div(id='right-side',
+                className='six columns',
+                children=[html.H5(children='Part Two - Select Channels'),
+                    html.P(children='Select channels to graph'),
 
                     html.Div(style = {"border":"1px black solid"},
                         children=[
@@ -145,11 +152,21 @@ app.layout = html.Div(children=[
                             )
                         ]
                     )
+                         
                 ]
-            ),
+            )
             
+
+            
+            
+        ]
+             
+        # SECOND SECTION
+    ),
+    html.Div(id='section-section', 
+        children=[
             html.Div(id='selected-channel-table',
-                     className='six columns',
+                className='six columns',
                 children=[
                     html.Div(id='selection-container',className='row',
                     children=[
@@ -179,6 +196,7 @@ app.layout = html.Div(children=[
                     ),
 
                 html.Div(className='row',children=[
+                    html.H5(children='Part Three - Select Distance'),
                     html.P(children='Select the max distance to crawl and hit "Network"'),
                     dcc.Dropdown(id='dropdown-max-degree',
                         className='six columns',
@@ -192,15 +210,16 @@ app.layout = html.Div(children=[
                         ],
                         placeholder='select max degree'
                         #,value=3
-                    ),html.Button('Network', id='network-button',n_clicks=0, className='six columns')
+                    ),html.Button('Network', 
+                                  id='network-button',
+                                  n_clicks=0, 
+                                  className='six columns')
                 ])
                 ]
             )
             
-            
         ]
     ),
-    #
     html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
@@ -231,7 +250,8 @@ def hide_graph(fig):
 @app.callback(
     dash.dependencies.Output('datatable-interactive', 'data'),
     [dash.dependencies.Input('submit-val', 'n_clicks')],
-    [dash.dependencies.State('channel_search_input', 'value')])
+    [dash.dependencies.State('channel_search_input', 'value')]
+)
 def display_search_table(n_clicks, value):
     if value is None:
         print("Search Value  Is None")
@@ -245,8 +265,8 @@ def display_search_table(n_clicks, value):
 @app.callback(
     dash.dependencies.Output('selected-data-table','data'),
     [dash.dependencies.Input('datatable-interactive','selected_row_ids'),
-    dash.dependencies.Input('datatable-interactive','data')])
-  
+    dash.dependencies.Input('datatable-interactive','data')]
+)
 def update_selected_datatable(selected_row_ids, data):
     if data is None:
         print("Update_selected_datatable is None")
@@ -259,14 +279,14 @@ def update_selected_datatable(selected_row_ids, data):
         selected_channel_boolean = (df['id'].isin(selected_row_ids))
         return df[selected_channel_boolean].to_dict('records')
 
+    
+
 @app.callback(
     dash.dependencies.Output('plotly','figure'),
     [dash.dependencies.Input('network-button','n_clicks')],
 [dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
-dash.dependencies.State('dropdown-max-degree','value')])
-
-
-
+dash.dependencies.State('dropdown-max-degree','value')]
+)
 def update_network(n_clicks,row_ids, value):
     print("Ran Update Network graph")
     print(value)
