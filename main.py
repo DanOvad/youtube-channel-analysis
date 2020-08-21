@@ -60,6 +60,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css','https://us
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/dZVMbK.css']#['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 # Instantiate Dash app as "app"
+
 app = dash.Dash(__name__, 
                 external_stylesheets=external_stylesheets, 
                 meta_tags=[
@@ -211,7 +212,7 @@ app.layout = html.Div(children=[
     ])
     
 ])
-
+app.title = "YouTube Featured Network"
 server = app.server
 
 @app.callback(
