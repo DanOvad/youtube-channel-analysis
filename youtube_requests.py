@@ -67,8 +67,8 @@ def youtube_request_search_channels(query, n):
 def youtube_request_channel_list(channelid_list):
     #print("youtube_request_channel_list")
     #print(len(channelid_list))
-    #if channelid_list is None:
-        #return None
+    if channelid_list is None:
+        return None
     # Check for non-unique elements
     if len(channelid_list) != len(set(channelid_list)):
         print("There are non-unique elements in this list")
@@ -120,7 +120,7 @@ def youtube_channel_details_by_search(query, n):
         with open('data/query_cache.json','r') as query_cache:
             query_cache_dict = json.load(query_cache)
     # Otherwise, we will overwrite it later
-    else: 
+    else:
         query_cache_dict = {}
 
         
@@ -144,8 +144,8 @@ def youtube_channel_details_by_search(query, n):
             
         # Caching
         query_cache_dict[cache_key] = channels_details_items_list
-        #with open('data/query_cache.json','w') as query_json:
-        #    json.dump(query_cache_dict, query_json)
+        with open('data/query_cache.json','w') as query_json:
+            json.dump(query_cache_dict, query_json)
     
     return channels_details_items_list
 
@@ -167,7 +167,9 @@ def extract_featured_channels(channels_details_items_list):
 
 
 
-def youtube_channel_details_by_network(channelid_list, max_degree):
+def youtube_channel_details_by_network(channelid_list, max_degree=1):
+    if channelid_list is None:
+        return None
     print("Channel_details_by_network")
     # Caching using sorted strings
     channelid_list = list(set(channelid_list))
@@ -228,7 +230,7 @@ def youtube_channel_details_by_network(channelid_list, max_degree):
         # Append network_channels_items_list to cache
         channel_network_cache[cache_key] = network_channels_items_list
         
-        #with open('data/network_cache.json','w') as json_file:
-        #    json.dump(channel_network_cache, json_file)
+        with open('data/network_cache.json','w') as json_file:
+            json.dump(channel_network_cache, json_file)
         
     return network_channels_items_list
