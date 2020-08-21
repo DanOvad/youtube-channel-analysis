@@ -199,7 +199,7 @@ app.layout = html.Div(children=[
             
         ]
     ),
-
+    #
     html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
