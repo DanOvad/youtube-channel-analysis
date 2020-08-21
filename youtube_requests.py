@@ -29,7 +29,9 @@ def determine_max_result_list(n, batch_size):
 def youtube_request_search_channels(query, n):
     '''Returns a list of n channels that match the query.\n
     Uses /youtube/v3/search'''
+    print("youtube_request_search_channels")
     
+    # Custom function to return list of max_result parameters
     request_size_list = determine_max_result_list(n,50)
         
     # Empty list to store 50 items from each response
@@ -63,7 +65,10 @@ def youtube_request_search_channels(query, n):
 
 # Get channel details and snippet
 def youtube_request_channel_list(channelid_list):
-    
+    #print("youtube_request_channel_list")
+    #print(len(channelid_list))
+    #if channelid_list is None:
+        #return None
     # Check for non-unique elements
     if len(channelid_list) != len(set(channelid_list)):
         print("There are non-unique elements in this list")
@@ -78,7 +83,6 @@ def youtube_request_channel_list(channelid_list):
     start_index = 0
     # Loop 
     for request_size in request_size_list:
-        
         # Debug
         #print(request_size_list, request_size, start_index, start_index+request_size)
         
@@ -98,11 +102,16 @@ def youtube_request_channel_list(channelid_list):
         
         # Extend channel response list
         channel_resp_list.extend(json.loads(resp.content)['items'])
-        
+        print(len(channel_resp_list))
     return channel_resp_list
+
+
 
 ### Pulling channel details by search
 def youtube_channel_details_by_search(query, n):
+    #print("youtube_channel_details_by_search")
+    if query is None:
+        return None
     '''Returns a details list of channels for a specific search query and number of requested results.'''
     # Load cached dictionary with {key:value} is {query string:response_items}
     cache_key = query.lower()+str(n)
@@ -159,7 +168,7 @@ def extract_featured_channels(channels_details_items_list):
 
 
 def youtube_channel_details_by_network(channelid_list, max_degree):
-    
+    print("Channel_details_by_network")
     # Caching using sorted strings
     channelid_list = list(set(channelid_list))
     channelid_list.sort()

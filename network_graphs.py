@@ -7,6 +7,7 @@ import networkx as nx
 
 import plotly.graph_objects as go
 
+import time
 
 def create_nx_graph(channel_response, directed = True):
     '''Takes in a list of channel details response items and returns a graph object in networkX.
@@ -30,13 +31,19 @@ def create_nx_graph(channel_response, directed = True):
     subscriber_count_dict = {channel['id']:int(channel['statistics']['subscriberCount']) \
                              for channel in channel_response}
     
-    
+    t0=time.clock()
     # Create a Directional Graph from the channel network
     g = nx.DiGraph(channel_network)
-
+    t1 = time.clock()-t0
+    print("Time elapsed create graph: ",t1)
+    
+    t0=time.clock()
     # Create a list of channelIds to subset the graph
     channel_ids = [channel['id'] for channel in channel_response]
     channel_id_dict = {channel_id:channel_id for channel_id in channel_ids}
+    
+    t1 = time.clock()-t0
+    print("Time elapsed channelId list: ",t1)
     
     # Create a dictionary of distance
     distance_dict = {channel['id']:channel['distance'] \
@@ -54,14 +61,22 @@ def create_nx_graph(channel_response, directed = True):
                                values=in_degree_dict,
                                name='in_degree')
     else:
-        h = g.subgraph(channel_ids).to_undirected()
-    
+        
+        
+        h = g.subgraph(channel_ids)#.to_undirected()
+
+        
     # Set node attributes to include position
     #pos = nx.drawing.layout.spring_layout(g)
     #pos = nx.nx.drawing.layout.fruchterman_reingold_layout(g)
+    
+    t0=time.clock()
+    
     pos = nx.drawing.layout.kamada_kawai_layout(g)
     nx.set_node_attributes(g, pos, name='pos')
-    
+    t1 = time.clock()-t0
+    print("Time elapsed determine position: ",t1)
+    t0=time.clock()
     # Set attribute for names
     nx.set_node_attributes(h, channel_names, name='title')
     # Set attribute for SubscribeCount
@@ -70,7 +85,8 @@ def create_nx_graph(channel_response, directed = True):
     nx.set_node_attributes(h, channel_id_dict, name='id')
     # Set the distance of each node
     nx.set_node_attributes(h, distance_dict, name='distance')
-    
+    t1 = time.clock()-t0
+    print("Time elapsed Setting Attributes: ",t1)
     return h
 
 def graph_nx_graph(g):

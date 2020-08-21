@@ -17,28 +17,34 @@ import youtube_requests
 import data_processing
 import network_graphs
 
-#with open('data/corridor_search.json','r') as json_file:
-#    SEARCH_DETAILS_ITEMS_LIST = json.load(json_file)
+import plotly.graph_objects as go
+
 
 # Search for the default value which will be "Corridor Crew"
-SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search("corridor crew", 10)
+#SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search("corridor crew", 10)
 
 # Graph the network of channels
-G = network_graphs.create_nx_graph(SEARCH_DETAILS_ITEMS_LIST, True)
+#G = network_graphs.create_nx_graph(SEARCH_DETAILS_ITEMS_LIST, directed=True)
 
 # Graph G
-FIG = network_graphs.plotly_network_graph(G, 'Connections')
+#FIG = network_graphs.plotly_network_graph(G, color_setting='Connections')
 
-FEATURES = ['id','title','subscriberCount','viewCount','featuredChannelsCount']
+BLANK_FIG = go.Figure()
+##
+FEATURES = ['id','title','outDegree','subscribers','views', 'videos']
+
+#CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(SEARCH_DETAILS_ITEMS_LIST)
+#DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
 
 def run_update_search_DF(query):
-    SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search(query, 10)
-    CHANNELS_DETAILS_LIST = data_processing.extract_channel_details(SEARCH_DETAILS_ITEMS_LIST)
-    DF = data_processing.create_df_from_details_list(CHANNELS_DETAILS_LIST)
-    DF = DF[FEATURES]
-    return DF
+    print("run_update_search_DF")
+    search_details_items_list = youtube_requests.youtube_channel_details_by_search(query, 10)
+    channels_details_list = data_processing.extract_channel_details(search_details_items_list)
+    df = data_processing.create_df_from_details_list(channels_details_list)
+    df = df[FEATURES]
+    return df
 
-DF = run_update_search_DF("corridor crew")
+#DF = run_update_search_DF("corridor crew")
 # Define External Stylesheet
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css','https://use.fontawesome.com/releases/v5.8.1/css/all.css']
@@ -96,27 +102,27 @@ app.layout = html.Div(children=[
                         dcc.Input(
                             id="channel_search_input",
                             type="text",
-                            value="corridor crew",
-                            placeholder="Search for relevant youtube channels"),
+                            #value='Corridor Crew',
+                            #value="corridor crew",
+                            placeholder="Search channels"),
                         html.Button('Search', id='submit-val',n_clicks=0)
                     ]
                          
                     ),
                                         html.H5(children='Part Two - Select Channels'),
                     html.P(children='Select which channels you want to graph"'),
-                    #html.Div(id = 'box-two', 
-                        #children = [
+
                     html.Div(style = {"border":"1px black solid"},
                         children=[
                             dash_table.DataTable(id='datatable-interactive',
                                 columns=[{"name": column, "id": column, "selectable":True} \
-                                         for column in DF[FEATURES].columns],
+                                         for column in FEATURES],
                                 css=[{"selector": ".show-hide", "rule": "display: none"}],
                                 # Hide the id column, but need it to generate selected list
                                 hidden_columns=['id'],
 
                                 # Call Back replaces this field 
-                                data=DF.to_dict('records'),
+                                data=None,#DF.to_dict('records'),
 
                                 filter_action='native',
                                 #sort_action="multi",
@@ -162,7 +168,7 @@ app.layout = html.Div(children=[
                                             } for c in ['title']
                                         ],
                                         css=[{"selector": ".show-hide", "rule": "display: none"}],
-                                        columns=[{"name": column, "id": column, "selectable":True} for column in DF[FEATURES].columns],
+                                        columns=[{"name": column, "id": column, "selectable":True} for column in FEATURES],
                                         hidden_columns=['id'])
                                     ]
                                 )
@@ -189,8 +195,8 @@ app.layout = html.Div(children=[
                 ])
                 ]
             )
-             
-                
+            
+            
         ]
     ),
 
@@ -199,42 +205,40 @@ app.layout = html.Div(children=[
             id='plotly',
             style={'height': '100vh','width': '100%','textAlign': 'center'},
             #style={'height': '100vh','w},
-            figure=FIG,
+            figure=BLANK_FIG,
             responsive=True
         )
     ])
     
 ])
 
-
 server = app.server
+
+@app.callback(
+    dash.dependencies.Output('graph_network','style'),
+    [dash.dependencies.Input('plotly','figure')]
+)
+def hide_graph(fig):
+    if fig['data'] != []:
+        return None
+    else:
+        return dict(visibility='hidden')#display='none')
+
+
+
 # Callback to update data table with search results
 @app.callback(
     dash.dependencies.Output('datatable-interactive', 'data'),
     [dash.dependencies.Input('submit-val', 'n_clicks')],
     [dash.dependencies.State('channel_search_input', 'value')])
 def display_search_table(n_clicks, value):
-    
+    if value is None:
+        print("Search Value  Is None")
+        return None
+    print(value)
     print("Ran Update Search datatable")
-    DF = run_update_search_DF(value)
-    return DF.to_dict('records')
-
-@app.callback(
-    dash.dependencies.Output('plotly','figure'),
-    [dash.dependencies.Input('network-button','n_clicks')],
-[dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
-dash.dependencies.State('dropdown-max-degree','value')])
-
-def update_network(n_clicks,row_ids, value):
-    print("Ran Update Network graph")
-    if row_ids is None:
-        return FIG
-    else:
-        print(f'Running with {len(row_ids)} channels')
-        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
-        g = network_graphs.create_nx_graph(channels_details_items_list)    
-
-    return network_graphs.plotly_network_graph(g, 'Connections')
+    df = run_update_search_DF(value)
+    return df.to_dict('records')
 
 
 @app.callback(
@@ -243,12 +247,37 @@ def update_network(n_clicks,row_ids, value):
     dash.dependencies.Input('datatable-interactive','data')])
   
 def update_selected_datatable(selected_row_ids, data):
-    DF = pd.DataFrame(data)
-    if selected_row_ids is None:
-        print("No row Selected")
+    if data is None:
+        print("Update_selected_datatable is None")
         return None
-    selected_channel_boolean = (DF['id'].isin(selected_row_ids))
-    return DF[selected_channel_boolean].to_dict('records')
+    else:
+        df = pd.DataFrame(data)
+        if selected_row_ids is None:
+            print("No row Selected")
+            return None
+        selected_channel_boolean = (df['id'].isin(selected_row_ids))
+        return df[selected_channel_boolean].to_dict('records')
+
+@app.callback(
+    dash.dependencies.Output('plotly','figure'),
+    [dash.dependencies.Input('network-button','n_clicks')],
+[dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
+dash.dependencies.State('dropdown-max-degree','value')])
+
+
+
+def update_network(n_clicks,row_ids, value):
+    print("Ran Update Network graph")
+    print(value)
+    if row_ids is None:
+        print("row_ids Is None - Update Network")
+        return BLANK_FIG
+    else:
+        print(f'Running with {len(row_ids)} channels')
+        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
+        g = network_graphs.create_nx_graph(channels_details_items_list)
+        fig = network_graphs.plotly_network_graph(g, 'Distance')
+        return fig
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
+    app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=True)
