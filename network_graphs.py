@@ -72,9 +72,11 @@ def create_nx_graph(channel_response, directed = True):
     
     t0=time.clock()
     
+    # Assigning positional layout
     pos = nx.drawing.layout.kamada_kawai_layout(g)
     nx.set_node_attributes(g, pos, name='pos')
     t1 = time.clock()-t0
+    
     print("Time elapsed determine position: ",t1)
     t0=time.clock()
     # Set attribute for names

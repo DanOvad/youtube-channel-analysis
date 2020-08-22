@@ -171,11 +171,11 @@ app.layout = html.Div(children=[
                 children=[
                     html.Div(id='selection-container',className='row',
                     children=[
-                        html.Div(
-                            children=[
+                        html.Div(children=[
                                 html.P(children='You selected the following channels:'),
                                 html.Div(style = {"border":"1px black solid"},
-                                    children = [dash_table.DataTable(id='selected-data-table',
+                                    children = [
+                                        dash_table.DataTable(id='selected-data-table',
                                         style_as_list_view=True,
                                         style_cell={
                                             'whiteSpace': 'normal',
@@ -205,9 +205,9 @@ app.layout = html.Div(children=[
                             {'label': '1', 'value': 1},
                             {'label': '2', 'value': 2},
                             {'label': '3', 'value': 3}
-                            #,{'label': '4', 'value': 4},
-                            #{'label': '5', 'value': 5},
-                            #{'label': '6', 'value': 6}
+                            ,{'label': '4', 'value': 4},
+                            {'label': '5', 'value': 5},
+                            {'label': '6', 'value': 6}
                         ],
                         placeholder='select max degree'
                         #,value=3
@@ -300,7 +300,7 @@ def update_network(n_clicks,row_ids, value):
         print(f'Running with {len(row_ids)} channels')
         channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
         g = network_graphs.create_nx_graph(channels_details_items_list)
-        fig = network_graphs.plotly_network_graph(g, 'Distance')
+        fig = network_graphs.plotly_network_graph(g, 'Connections')
         return fig
 
 if __name__ == '__main__':
