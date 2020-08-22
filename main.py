@@ -163,7 +163,8 @@ app.layout = html.Div(children=[
              
         # SECOND SECTION
     ),
-    html.Div(id='section-section', 
+    html.Div(id='section-section',
+        className='row',
         children=[
             html.Div(id='selected-channel-table',
                 className='six columns',
@@ -203,10 +204,10 @@ app.layout = html.Div(children=[
                         options=[
                             {'label': '1', 'value': 1},
                             {'label': '2', 'value': 2},
-                            {'label': '3', 'value': 3},
-                            {'label': '4', 'value': 4},
-                            {'label': '5', 'value': 5},
-                            {'label': '6', 'value': 6}
+                            {'label': '3', 'value': 3}
+                            #,{'label': '4', 'value': 4},
+                            #{'label': '5', 'value': 5},
+                            #{'label': '6', 'value': 6}
                         ],
                         placeholder='select max degree'
                         #,value=3
@@ -220,14 +221,16 @@ app.layout = html.Div(children=[
             
         ]
     ),
-    html.Div(id='graph_network',children=[
+    html.Div(children=[
+        html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
             style={'height': '100vh','width': '100%','textAlign': 'center'},
             #style={'height': '100vh','w},
             figure=BLANK_FIG,
             responsive=True
-        )
+            )
+        ])
     ])
     
 ])
