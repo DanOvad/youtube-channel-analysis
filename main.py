@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_table
+from dash.exceptions import PreventUpdate
 
 import pandas as pd
 import numpy as np
@@ -59,7 +60,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css','https://us
 #https://use.fontawesome.com/releases/v5.8.1/css/all.css
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/dZVMbK.css']#['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-# Instantiate Dash app as "app"
+# Instantiate Dash app
 
 app = dash.Dash(__name__, 
                 external_stylesheets=external_stylesheets, 
@@ -204,8 +205,8 @@ app.layout = html.Div(children=[
                         options=[
                             {'label': '1', 'value': 1},
                             {'label': '2', 'value': 2},
-                            {'label': '3', 'value': 3}
-                            ,{'label': '4', 'value': 4},
+                            {'label': '3', 'value': 3},
+                            {'label': '4', 'value': 4},
                             {'label': '5', 'value': 5},
                             {'label': '6', 'value': 6}
                         ],
@@ -222,6 +223,8 @@ app.layout = html.Div(children=[
         ]
     ),
     html.Div(children=[
+        dcc.Store(id='channel-items-store'),
+        html.Div(id='results-section'),
         html.Div(id='graph_network',children=[
         dcc.Graph(
             id='plotly',
@@ -282,25 +285,49 @@ def update_selected_datatable(selected_row_ids, data):
         selected_channel_boolean = (df['id'].isin(selected_row_ids))
         return df[selected_channel_boolean].to_dict('records')
 
+# Calllback to generate dictionary
+@app.callback(
+        dash.dependencies.Output('channel-items-store','data'),
+        [dash.dependencies.Input('network-button','n_clicks')],
+        [dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
+        dash.dependencies.State('dropdown-max-degree','value')])
+def store_items(n_clicks, row_ids,value):
+    print(f"Callback Context outputs_list: {dash.callback_context.outputs_list}")
+    if row_ids is None:
+        print("row_ids Is None - Update Network")
+        return None
+    channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
+    return channels_details_items_list
     
+    
+# Calllback to generate graph
+@app.callback(
+        dash.dependencies.Output('results-section','children'),
+        [dash.dependencies.Input('channel-items-store','data')])
+def return_states(data):
+    print(f"Callback Context outputs_list: {dash.callback_context.outputs_list}")
+    if data is None:
+        raise PreventUpdate
+        return None
+    network_size = len(data)
+    origin_size = len([channel['id'] for channel in data if channel['distance'] == 0])
+    g = network_graphs.create_nx_graph2(data)
+    return html.Div(f"You Selected {origin_size} channels; displaying results for network with {network_size} nodes")
 
+        
+# Callback to generate figure
 @app.callback(
     dash.dependencies.Output('plotly','figure'),
-    [dash.dependencies.Input('network-button','n_clicks')],
-[dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
-dash.dependencies.State('dropdown-max-degree','value')]
-)
-def update_network(n_clicks,row_ids, value):
-    print("Ran Update Network graph")
-    print(value)
-    if row_ids is None:
+    [dash.dependencies.Input('channel-items-store','data')]
+    )
+def update_network(data):
+    if data is None:
+        #raise PreventUpdate
         print("row_ids Is None - Update Network")
         return BLANK_FIG
     else:
-        print(f'Running with {len(row_ids)} channels')
-        channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
-        g = network_graphs.create_nx_graph(channels_details_items_list)
-        fig = network_graphs.plotly_network_graph(g, 'Connections')
+        g = network_graphs.create_nx_graph(data)
+        fig = network_graphs.plotly_network_graph(g, 'Distance')
         return fig
 
 if __name__ == '__main__':
