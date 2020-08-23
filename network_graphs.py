@@ -73,7 +73,7 @@ def create_nx_graph(channel_response, directed = True):
     t0=time.clock()
     
     # Assigning positional layout
-    pos = nx.drawing.layout.kamada_kawai_layout(g)
+    pos = nx.drawing.layout.kamada_kawai_layout(h)
     nx.set_node_attributes(g, pos, name='pos')
     t1 = time.clock()-t0
     
