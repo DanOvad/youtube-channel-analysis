@@ -119,7 +119,7 @@ app.layout = html.Div(children=[
             html.Div(id='right-side',
                 className='six columns',
                 children=[html.H5(children='Part Two - Select Channels'),
-                    html.P(children='Select channels to graph'),
+                    html.P(children='Select channels to graph. \nGrayed out channels have no featured channels.'),
 
                     html.Div(style = {"border":"1px black solid"},
                         children=[
@@ -129,6 +129,7 @@ app.layout = html.Div(children=[
                                 css=[{"selector": ".show-hide", "rule": "display: none"}],
                                 # Hide the id column, but need it to generate selected list
                                 hidden_columns=['id'],
+                                style_data_conditional=[{'if':{'filter_query':'{outDegree} = 0'},'backgroundColor':'gray'}],
 
                                 # Call Back replaces this field 
                                 data=None,#DF.to_dict('records'),
