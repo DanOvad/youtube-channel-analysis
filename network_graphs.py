@@ -77,8 +77,8 @@ def create_nx_graph2(channel_response, directed = True):
     #pos = nx.drawing.layout.kamada_kawai_layout(h)
     #nx.set_node_attributes(g, pos, name='pos')
     #t1 = time.clock()-t0
+    #print("Time elapsed determine position: ",t1)
     
-    print("Time elapsed determine position: ",t1)
     t0=time.clock()
     # Set attribute for names
     nx.set_node_attributes(h, channel_names, name='title')
@@ -154,7 +154,7 @@ def create_nx_graph(channel_response, directed = True):
 
         
     # Set node attributes to include position
-    #pos = nx.drawing.layout.spring_layout(g)
+    #pos = nx.drawing.layout.spring_layout(g) kamada_kawai_layout
     #pos = nx.nx.drawing.layout.fruchterman_reingold_layout(g)
     
     t0=time.clock()

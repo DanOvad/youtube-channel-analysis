@@ -206,9 +206,9 @@ app.layout = html.Div(children=[
                             {'label': '1', 'value': 1},
                             {'label': '2', 'value': 2},
                             {'label': '3', 'value': 3},
-                            {'label': '4', 'value': 4},
-                            {'label': '5', 'value': 5},
-                            {'label': '6', 'value': 6}
+                            {'label': '4', 'value': 4}
+                            #,{'label': '5', 'value': 5},
+                            #{'label': '6', 'value': 6}
                         ],
                         placeholder='select max degree'
                         #,value=3
@@ -224,12 +224,14 @@ app.layout = html.Div(children=[
     ),
     html.Div(children=[
         dcc.Store(id='channel-items-store'),
+        dcc.Store(id='graph-dict-store'),
         html.Div(id='results-section'),
-        html.Div(id='graph_network',children=[
+        html.Div(id='graph_network',
+                 style = dict(visibility='hidden'),
+                 children=[
         dcc.Graph(
             id='plotly',
             style={'height': '100vh','width': '100%','textAlign': 'center'},
-            #style={'height': '100vh','w},
             figure=BLANK_FIG,
             responsive=True
             )
@@ -240,19 +242,25 @@ app.layout = html.Div(children=[
 app.title = "YouTube Featured Network"
 server = app.server
 
+# Hide graph
 @app.callback(
     dash.dependencies.Output('graph_network','style'),
     [dash.dependencies.Input('plotly','figure')]
 )
 def hide_graph(fig):
+    print("Checking hide graph")
+    if fig is None:
+        print("Fig is none")
     if fig['data'] != []:
+        print("fig data is empty list")
         return None
     else:
+        print("hiding figure")
         return dict(visibility='hidden')#display='none')
 
 
 
-# Callback to update data table with search results
+# Update Search DataTable with response
 @app.callback(
     dash.dependencies.Output('datatable-interactive', 'data'),
     [dash.dependencies.Input('submit-val', 'n_clicks')],
@@ -262,12 +270,12 @@ def display_search_table(n_clicks, value):
     if value is None:
         print("Search Value  Is None")
         return None
-    print(value)
+    print(f"Searching {value}")
     print("Ran Update Search datatable")
     df = run_update_search_DF(value)
     return df.to_dict('records')
 
-
+# Display Channels to network (Selected Datatable)
 @app.callback(
     dash.dependencies.Output('selected-data-table','data'),
     [dash.dependencies.Input('datatable-interactive','selected_row_ids'),
@@ -276,6 +284,7 @@ def display_search_table(n_clicks, value):
 def update_selected_datatable(selected_row_ids, data):
     if data is None:
         print("Update_selected_datatable is None")
+        raise PreventUpdate
         return None
     else:
         df = pd.DataFrame(data)
@@ -285,27 +294,47 @@ def update_selected_datatable(selected_row_ids, data):
         selected_channel_boolean = (df['id'].isin(selected_row_ids))
         return df[selected_channel_boolean].to_dict('records')
 
-# Calllback to generate dictionary
+# Generate Network Channel Dictionary for Items Store
 @app.callback(
         dash.dependencies.Output('channel-items-store','data'),
         [dash.dependencies.Input('network-button','n_clicks')],
         [dash.dependencies.State('selected-data-table','derived_viewport_row_ids'),
         dash.dependencies.State('dropdown-max-degree','value')])
 def store_items(n_clicks, row_ids,value):
-    print(f"Callback Context outputs_list: {dash.callback_context.outputs_list}")
     if row_ids is None:
         print("row_ids Is None - Update Network")
         return None
     channels_details_items_list = youtube_requests.youtube_channel_details_by_network(row_ids,value)
     return channels_details_items_list
+
+
+# Store graph positional dictionary
+@app.callback(dash.dependencies.Output('graph-dict-store','data'),
+[dash.dependencies.Input('channel-items-store','data')])
+def store_graph_dict(data):
+    if data is None:
+        #raise PreventUpdate
+        print("Data is None")
+        raise PreventUpdate
+    else:
+        print("Calculating position dictionary")
+        g = network_graphs.create_nx_graph(data)
+        pos_dict = {g.nodes[node]['id']:g.nodes[node]['pos'] for node in g.nodes()}
+        
+    print("Finished calculating position")
+    return pos_dict
     
-    
-# Calllback to generate graph
+## Generate Graph from Items store and create Graph Store
+#  Also need to figure out where betweeness will be calculated. 
+#   Will the dataframe be generated after both items-store and graph-store are created?
+#   graph-stats are stored at first in graph-store. Create DF using items-store, then add in graph-store?
+
+
+# Print out Results to Results-section
 @app.callback(
         dash.dependencies.Output('results-section','children'),
         [dash.dependencies.Input('channel-items-store','data')])
 def return_states(data):
-    print(f"Callback Context outputs_list: {dash.callback_context.outputs_list}")
     if data is None:
         raise PreventUpdate
         return None
@@ -314,21 +343,35 @@ def return_states(data):
     g = network_graphs.create_nx_graph2(data)
     return html.Div(f"You Selected {origin_size} channels; displaying results for network with {network_size} nodes")
 
+
         
-# Callback to generate figure
+# Callback to generate figure from Graph Store
 @app.callback(
     dash.dependencies.Output('plotly','figure'),
-    [dash.dependencies.Input('channel-items-store','data')]
+    [dash.dependencies.Input('graph-dict-store','data')],
+    [dash.dependencies.State('channel-items-store','data')]
     )
-def update_network(data):
-    if data is None:
+def update_network(pos_data, channel_data):
+    if pos_data is None:
+        print("No position Data")
+    if channel_data is None:
         #raise PreventUpdate
         print("row_ids Is None - Update Network")
         return BLANK_FIG
     else:
-        g = network_graphs.create_nx_graph(data)
+        g = network_graphs.create_nx_graph2(channel_data)
+        nx.set_node_attributes(g, pos_data, name='pos')
+        #pos_dict = {g.nodes[node]['id']:g.nodes[node]['pos'] for node in g.nodes()}
         fig = network_graphs.plotly_network_graph(g, 'Distance')
         return fig
+    
+# Callback to generate Data Table from items store and graph store
+    
+# Callback to generate SCC from Graph Store
+
+# Callback to generate Page Rank graph from Graph Store
+# Callback to generate In-Degree Centrality graph from Graph Store
+# Callback to generate Betweenness Centrality graph from Graph Store
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=True)
