@@ -13,6 +13,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 #import seaborn as sns
 
+# Custom functions
 import config
 import youtube_requests
 import data_processing
@@ -20,8 +21,6 @@ import network_graphs
 
 import plotly.graph_objects as go
 
-
-# Search for the default value which will be "Corridor Crew"
 #SEARCH_DETAILS_ITEMS_LIST = youtube_requests.youtube_channel_details_by_search("corridor crew", 10)
 
 # Graph the network of channels
