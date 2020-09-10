@@ -1,4 +1,4 @@
-# Read Me
+# README
 
 ## Objective
 To create a dash app that uses networkX and plotly to generate a graph of featured channels for a select list of channels as our point of origin, and to conduct statstical analysis on significant nodes in the network and on the connectivity of the graph.
@@ -31,6 +31,8 @@ Although a lot of channels feature channels with similar contexts, channels of f
 ![image](images/sample-YT-corridor)
 
 ![image](images/sample-YT-smartereveryday)
+
+![image](images/sample-YT-slowmoguys)
 
 -----------------------------
 
